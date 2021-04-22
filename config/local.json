@@ -1,0 +1,16 @@
+{
+    "project": {
+      "port": 3000,
+      "url": "localhost:3000",
+      "host": "localhost",
+      "jwtSecret": "@h3@re@p1se3retkey02"
+    },
+    "database": {
+      "username": "Shan1999",
+      "password": "ShanAsAdmin",
+      "host": "cluster-sg-shard-00-01.oe4hd.mongodb.net",
+      "port": "27017",
+      "database": "hospitalMgt"
+  }
+}
+  
