@@ -40,7 +40,7 @@ app.use(express.static(path.join(__dirname, "public")));
 // Swagger definition
 var swaggerDefinition = {
     info: {
-        title: "Recruiting Candidates",
+        title: "Hospital Management System",
         version: "1.0.0",
         description: "Hospital CRUD using Swagger API and MongoDB",
     },
