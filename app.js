@@ -7,6 +7,7 @@ var config = require("config");
 var mongoose = require("mongoose");
 
 var utils = require("./common/utils");
+var doctorRouter = require("./routes/doctor");
 const swaggerJSDoc = require("swagger-jsdoc");
 
 var connStr = utils.getConectionString();
@@ -36,6 +37,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
+
+app.use("/doctor", doctorRouter);
 
 // Swagger definition
 var swaggerDefinition = {
