@@ -7,7 +7,7 @@ var config = require("config");
 var mongoose = require("mongoose");
 
 var utils = require("./common/utils");
-// var doctorRouter = require("./routes/doctor");
+var doctorRouter = require("./routes/doctor");
 var appointmentRouter = require("./routes/appointment");
 var medicationRouter = require("./routes/medication");
 var patientRouter = require("./routes/patient");
@@ -46,7 +46,7 @@ app.use("/appointment", appointmentRouter);
 app.use("/medication", medicationRouter);
 app.use("/management", managementRouter);
 app.use("/patients", patientRouter);
-// app.use("/doctor", doctorRouter);
+app.use("/doctor", doctorRouter);
 
 // Swagger definition
 var swaggerDefinition = {
