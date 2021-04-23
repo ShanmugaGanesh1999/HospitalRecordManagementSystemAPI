@@ -31,8 +31,25 @@ function getAllDoctors(callback) {
     });
 }
 
+function updateDoctorStatusById(id, state, callback) {
+    let doctorId = mongoose.Types.ObjectId(id);
+    return model().findByIdAndUpdate(
+        { _id: doctorId },
+        {
+            $set: {
+                status: state,
+            },
+        },
+        { new: true },
+        (err, res) => {
+            callback(err, res);
+        },
+    );
+}
+
 module.exports = {
     model,
     createDoctor,
     getAllDoctors,
+    updateDoctorStatusById,
 };

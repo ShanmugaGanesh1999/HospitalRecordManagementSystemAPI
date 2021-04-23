@@ -9,7 +9,7 @@ var doctorModel = require("../model/doctorModel");
 
 /**
  * @swagger
- * /doctor/createDoctors/:
+ * /doctor/createDoctor/:
  *   post:
  *     summary: To create doctor details
  *     tags:
@@ -50,7 +50,7 @@ var doctorModel = require("../model/doctorModel");
  *         type: date
  */
 router.post(
-    "/createDoctors",
+    "/createDoctor",
     // verifyToken.verifyToken,
     async function (req, res, next) {
         try {
@@ -59,7 +59,7 @@ router.post(
                 .find({ emailId: req.body.emailId });
             let doctorData = req.body;
             // console.log(req.body);
-            doctorData.status = "Active";
+            doctorData.status = "Away";
             if (doctorEmail == "") {
                 doctorModel
                     .createDoctor(doctorData)
@@ -135,12 +135,12 @@ router.get(
 
 /**
  * @swagger
- * /doctor/getDoctorsById/:
+ * /doctor/getDoctorById/:
  *   get:
- *     summary: Get details of a doctors by Id
+ *     summary: Get details of a doctor by Id
  *     tags:
  *       - doctor
- *     description: Get details of a doctors by Id
+ *     description: Get details of a doctor by Id
  *     produces:
  *       - application/json
  *     parameters:
@@ -150,7 +150,7 @@ router.get(
  *         required: false
  *         in: header
  *       - name: id
- *         description: doctorId
+ *         description: Doctor id
  *         type: string
  *         in: query
  *         required: true
@@ -159,7 +159,7 @@ router.get(
  *         description:  Get details of a doctor by id
  */
 router.get(
-    "/getDoctorsById",
+    "/getDoctorById",
     // verifyToken.verifyToken,
     async function (req, res) {
         try {
@@ -186,12 +186,12 @@ router.get(
 
 /**
  * @swagger
- * /doctor/updateDoctorsStatusById/:
+ * /doctor/updateDoctorStatusById/:
  *   put:
- *     summary: Update doctors details by id
+ *     summary: Update doctor status
  *     tags:
- *       - candidates
- *     description: Update doctors details by id
+ *       - doctor
+ *     description: Update doctor status
  *     produces:
  *       - application/json
  *     parameters:
@@ -200,46 +200,48 @@ router.get(
  *         type: string
  *         required: false
  *         in: header
- *       - name: doctorStatus
- *         description: update doctor details by id
- *         in: body
- *         default: '{"id":"6082738d32c6042de4930ab9","status":"Away"}'
+ *       - name: id
+ *         description: Doctor id to be updated
+ *         in: query
+ *         default: '6082738d32c6042de4930ab9'
+ *       - name: status
+ *         description: Doctor status
+ *         in: query
+ *         default: 'Active'
+ *         schema:
+ *           $ref: '#/definitions/updateDoctorStatusById'
  *     responses:
  *       200:
- *         description: Update doctor details Successfully
+ *         description: Successfully update doctor status
  */
-
+/**
+ * @swagger
+ * definitions:
+ *   updateDoctorStatusById:
+ *     properties:
+ *       id:
+ *         type: string
+ *       status:
+ *         type: string
+ */
 router.put(
-    "/updateDoctorsStatusById",
+    "/updateDoctorStatusById",
     // verifyToken.verifyToken,
-    async function (req, res) {
-        try {
-            id = req.body.id;
-            var doctorId = await doctorModel.model().find({ _id: id });
-            if (doctorId != "") {
-                let doctorData = req.body;
-                doctorModel.updateDoctorsStatusById(candidate, (err, res1) => {
-                    if (err) {
-                        res.status(403).json({
-                            message: "Doctor not found",
-                        });
-                    } else {
-                        res.status(200).json({
-                            message: "Candidate details updated successfully",
-                            data: res1,
-                        });
-                    }
+    function (req, res) {
+        var id = req.query.id,
+            state = req.query.status;
+        doctorModel.updateDoctorStatusById(id, state, function (err, data) {
+            if (data) {
+                res.status(200).json({
+                    message: "Updated status of doctor id:" + id,
+                    data: data,
                 });
             } else {
-                res.status(403).json({
-                    message: "Candidate not found",
+                res.status(404).json({
+                    message: err,
                 });
             }
-        } catch (error) {
-            res.status(403).json({
-                message: error.message,
-            });
-        }
+        });
     },
 );
 
