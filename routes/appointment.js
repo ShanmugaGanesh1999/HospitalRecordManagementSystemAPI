@@ -175,7 +175,7 @@ router.get(
 
 /**
  * @swagger
- * /appointment/cancelAppiontmentById/:
+ * /appointment/statusAppiontmentById/:
  *   put:
  *     summary: Update appointment details
  *     tags:
@@ -190,9 +190,13 @@ router.get(
  *         required: false
  *         in: header
  *       - name: id
- *         description: Id to be cancelled
+ *         description: Id to be updated
  *         in: query
  *         default: '602510453df858098c0ac1a9'
+ *       - name: status
+ *         description: Status
+ *         in: query
+ *         default: 'Finished'
  *         schema:
  *           $ref: '#/definitions/update'
  *     responses:
@@ -212,15 +216,15 @@ router.get(
  */
 
 router.put(
-    "/cancelAppiontmentById",
+    "/statusAppiontmentById",
     // verifyToken.verifyToken,
     function (req, res) {
-        var id = req.query.id;
-        appointmentModel.cancelAppiontmentById(id, function (err, data) {
+        var id = req.query.id,
+            state = req.query.status;
+        appointmentModel.cancelAppiontmentById(id, state, function (err, data) {
             if (data) {
                 res.status(200).json({
-                    message:
-                        "Updated status to cancelled of appointment id:" + id,
+                    message: "Updated status of appointment id:" + id,
                     data: data,
                 });
             } else {

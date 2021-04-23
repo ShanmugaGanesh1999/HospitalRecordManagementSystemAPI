@@ -51,13 +51,13 @@ function getAppointmentById(id) {
         });
     });
 }
-function cancelAppiontmentById(id, callback) {
+function statusAppiontmentById(id, state, callback) {
     let AppointmentId = mongoose.Types.ObjectId(id);
     return model().findByIdAndUpdate(
         { _id: AppointmentId },
         {
             $set: {
-                status: "Cancelled",
+                status: state,
             },
         },
         { new: true },
@@ -72,5 +72,5 @@ module.exports = {
     createAppointment,
     getAllAppointments,
     getAppointmentById,
-    cancelAppiontmentById,
+    statusAppiontmentById,
 };
