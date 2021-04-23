@@ -4,7 +4,7 @@ var utils = require("../common/utils");
 var verifyToken = require("../common/verifyToken");
 var managementModel = require("../model/managementModel");
 
-/* GET management listing. */
+/* GET Management listing. */
 router.get("/", function (req, res) {
     res.send("respond with a resource");
 });
@@ -15,7 +15,7 @@ router.get("/", function (req, res) {
  *   post:
  *     summary: Create an management
  *     tags:
- *       - management
+ *       - Management
  *     description: Create a management
  *     produces:
  *       - application/json
@@ -34,7 +34,8 @@ router.post(
     // verifyToken.verifyToken,
     function (req, res) {
         try {
-            var data = managementModel.createCount();
+            let count = 0;
+            var data = managementModel.createCount(count);
             if (data) {
                 res.status(200).json({
                     message: "Count created successfully",
@@ -58,7 +59,7 @@ router.post(
  *   get:
  *     summary: Get details of all the Counts
  *     tags:
- *       - management
+ *       - Management
  *     description: Get details of all the Counts
  *     produces:
  *       - application/json
@@ -88,7 +89,7 @@ router.get(
                     });
                 } else {
                     res.status(404).json({
-                        message: "No management found",
+                        message: "No Management found",
                     });
                 }
             })
@@ -104,10 +105,10 @@ router.get(
  * @swagger
  * /management/getCountByDate:
  *   get:
- *     summary: Get details of a management by Date
+ *     summary: Get details of a Management by Date
  *     tags:
- *       - management
- *     description: Get details of a management by Date
+ *       - Management
+ *     description: Get details of a Management by Date
  *     produces:
  *       - application/json
  *     parameters:
@@ -122,7 +123,7 @@ router.get(
  *         in: query
  *     responses:
  *       200:
- *         description:  Get details of an management by Id
+ *         description:  Get details of an Management by Id
  */
 
 router.get(
@@ -143,6 +144,75 @@ router.get(
                 } else {
                     res.status(404).json({
                         message: "Details not found",
+                    });
+                }
+            })
+            .catch((err) => {
+                res.status(404).json({
+                    message: err,
+                });
+            });
+    },
+);
+
+/**
+ * @swagger
+ * /management/updateCountByDate/:
+ *   put:
+ *     summary: Update Count details
+ *     tags:
+ *       - Management
+ *     description: Update Count details
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - name: x-access-token
+ *         description: send valid token
+ *         type: String
+ *         required: false
+ *         in: header
+ *       - name: state
+ *         description: plus-1/minus-0
+ *         type: String
+ *         in: query
+ *     responses:
+ *       200:
+ *         description: Successfully completed
+ */
+router.put(
+    "/updateCountByDate",
+    // verifyToken.verifyToken,
+    function (req, res) {
+        managementModel
+            .getAllCounts()
+            .then((data) => {
+                if (data) {
+                    data.forEach((element) => {
+                        if (Date(element.date) === Date(Date.now())) {
+                            var params = {
+                                id: element._id,
+                                state: req.query.state,
+                            };
+                            managementModel.updateCountByDate(
+                                params,
+                                function (err, data) {
+                                    if (data) {
+                                        res.status(200).json({
+                                            message: "Updated Count",
+                                            data: data,
+                                        });
+                                    } else {
+                                        res.status(404).json({
+                                            message: err,
+                                        });
+                                    }
+                                },
+                            );
+                        }
+                    });
+                } else {
+                    res.status(404).json({
+                        message: "No Management found",
                     });
                 }
             })

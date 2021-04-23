@@ -4,7 +4,7 @@ var utils = require("../common/utils");
 var verifyToken = require("../common/verifyToken");
 var appointmentModel = require("../model/appointmentModel");
 
-/* GET appointment listing. */
+/* GET Appointment listing. */
 router.get("/", function (req, res) {
     res.send("respond with a resource");
 });
@@ -15,7 +15,7 @@ router.get("/", function (req, res) {
  *   post:
  *     summary: Create an appointment
  *     tags:
- *       - appointment
+ *       - Appointment
  *     description: Create a appointment
  *     produces:
  *       - application/json
@@ -26,7 +26,7 @@ router.get("/", function (req, res) {
  *         required: false
  *         in: header
  *       - name: appointmentData
- *         description: Enter the appointment data
+ *         description: Enter the Appointment data
  *         type: string
  *         in: body
  *         default: '{"patientId":"6082738d32c6042de4930ab9","doctorId":"6082738d32c6042de4930ab9"}'
@@ -76,7 +76,7 @@ router.post(
  *   get:
  *     summary: Get details of all the appointments
  *     tags:
- *       - appointment
+ *       - Appointment
  *     description: Get details of all the appointments
  *     produces:
  *       - application/json
@@ -107,7 +107,7 @@ router.get(
                     });
                 } else {
                     res.status(404).json({
-                        message: "No appointment found",
+                        message: "No Appointment found",
                     });
                 }
             })
@@ -123,10 +123,10 @@ router.get(
  * @swagger
  * /appointment/getAppointmentById:
  *   get:
- *     summary: Get details of a appointment by Id
+ *     summary: Get details of a Appointment by Id
  *     tags:
- *       - appointment
- *     description: Get details of a appointment by Id
+ *       - Appointment
+ *     description: Get details of a Appointment by Id
  *     produces:
  *       - application/json
  *     parameters:
@@ -141,7 +141,7 @@ router.get(
  *         in: query
  *     responses:
  *       200:
- *         description:  Get details of an appointment by Id
+ *         description:  Get details of an Appointment by Id
  */
 
 router.get(
@@ -155,7 +155,7 @@ router.get(
                 if (data) {
                     res.status(200).json({
                         message:
-                            " Successfully fetched details of appointment id:" +
+                            " Successfully fetched details of Appointment id:" +
                             id,
                         data: data,
                     });
@@ -177,10 +177,10 @@ router.get(
  * @swagger
  * /appointment/statusAppointmentById/:
  *   put:
- *     summary: Update appointment details
+ *     summary: Update Appointment details
  *     tags:
- *       - appointment
- *     description: Update appointment details
+ *       - Appointment
+ *     description: Update Appointment details
  *     produces:
  *       - application/json
  *     parameters:
@@ -189,42 +189,35 @@ router.get(
  *         type: string
  *         required: false
  *         in: header
- *       - name: id
+ *       - name: body
  *         description: Id to be updated
  *         in: query
- *         default: '602510453df858098c0ac1a9'
- *       - name: status
- *         description: Status
- *         in: query
- *         default: 'Finished'
+ *         default: '{"id":"602510453df858098c0ac1a9","status":"Finished"}'
  *         schema:
  *           $ref: '#/definitions/update'
  *     responses:
  *       200:
  *         description: Successfully completed
  */
-
 /**
  * @swagger
  * definitions:
  *   update:
  *     properties:
- *       _id:
+ *       id:
  *         type: string
  *       status:
  *         type: string
  */
-
 router.put(
     "/statusAppointmentById",
     // verifyToken.verifyToken,
     function (req, res) {
-        var id = req.query.id,
-            state = req.query.status;
-        appointmentModel.statusAppointmentById(id, state, function (err, data) {
+        var params = req.body;
+        appointmentModel.statusAppointmentById(params, function (err, data) {
             if (data) {
                 res.status(200).json({
-                    message: "Updated status of appointment id:" + id,
+                    message: "Updated status of Appointment id:" + params.id,
                     data: data,
                 });
             } else {

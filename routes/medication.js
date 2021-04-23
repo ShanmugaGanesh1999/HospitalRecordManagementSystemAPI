@@ -4,7 +4,7 @@ var utils = require("../common/utils");
 var verifyToken = require("../common/verifyToken");
 var medicationModel = require("../model/medicationModel");
 
-/* GET medication listing. */
+/* GET Medication listing. */
 router.get("/", function (req, res) {
     res.send("respond with a resource");
 });
@@ -15,7 +15,7 @@ router.get("/", function (req, res) {
  *   post:
  *     summary: Create an medication
  *     tags:
- *       - medication
+ *       - Medication
  *     description: Create a medication
  *     produces:
  *       - application/json
@@ -26,7 +26,7 @@ router.get("/", function (req, res) {
  *         required: false
  *         in: header
  *       - name: medicationData
- *         description: Enter the medication data
+ *         description: Enter the Medication data
  *         type: string
  *         in: body
  *         default: '{"appointmentId":"6082738d32c6042de4930ab9","complication":"fever","prescription":"paracetamol 2 (morning and night, after food) x 2 days"}'
@@ -78,7 +78,7 @@ router.post(
  *   get:
  *     summary: Get details of all the medications
  *     tags:
- *       - medication
+ *       - Medication
  *     description: Get details of all the medications
  *     produces:
  *       - application/json
@@ -109,7 +109,7 @@ router.get(
                     });
                 } else {
                     res.status(404).json({
-                        message: "No medication found",
+                        message: "No Medication found",
                     });
                 }
             })
@@ -125,10 +125,10 @@ router.get(
  * @swagger
  * /medication/getMedicationById:
  *   get:
- *     summary: Get details of a medication by Id
+ *     summary: Get details of a Medication by Id
  *     tags:
- *       - medication
- *     description: Get details of a medication by Id
+ *       - Medication
+ *     description: Get details of a Medication by Id
  *     produces:
  *       - application/json
  *     parameters:
@@ -143,7 +143,7 @@ router.get(
  *         in: query
  *     responses:
  *       200:
- *         description:  Get details of an medication by Id
+ *         description:  Get details of an Medication by Id
  */
 
 router.get(
@@ -157,7 +157,7 @@ router.get(
                 if (data) {
                     res.status(200).json({
                         message:
-                            "Successfully fetched the details of medication id:" +
+                            "Successfully fetched the details of Medication id:" +
                             id,
                         data: data,
                     });

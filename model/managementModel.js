@@ -9,10 +9,7 @@ const ManagementSchema = new Schema({
         type: Date,
         default: Date.now(),
     },
-    count: {
-        type: Number,
-        default: 0,
-    },
+    count: Number,
 });
 
 const ManagementModel = mongoose.model("Management", ManagementSchema);
@@ -21,8 +18,8 @@ function model() {
     return ManagementModel;
 }
 
-function createCount() {
-    return model().create();
+function createCount(no) {
+    return model().create({ count: no });
 }
 
 function getAllCounts() {
@@ -38,9 +35,8 @@ function getAllCounts() {
 }
 
 function getCountByDate(date) {
-    let curDate = mongoose.Types.Date(date);
     return new Promise((response, reject) => {
-        model().find({ date: curDate }, function (err, data) {
+        model().find({ date: date }, function (err, data) {
             if (data) {
                 response(data);
             } else {
@@ -50,9 +46,37 @@ function getCountByDate(date) {
     });
 }
 
+function updateCountByDate(params, callback) {
+    let mgtId = mongoose.Types.ObjectId(params.id);
+    if (params.state === "1") {
+        return model().findOneAndUpdate(
+            { _id: mgtId },
+            {
+                $inc: { count: 1 },
+            },
+            { new: true },
+            (err, res) => {
+                callback(err, res);
+            },
+        );
+    } else if (params.state === "0") {
+        return model().findOneAndUpdate(
+            { _id: mgtId },
+            {
+                $inc: { count: -1 },
+            },
+            { new: true },
+            (err, res) => {
+                callback(err, res);
+            },
+        );
+    }
+}
+
 module.exports = {
     model,
     createCount,
     getAllCounts,
     getCountByDate,
+    updateCountByDate,
 };

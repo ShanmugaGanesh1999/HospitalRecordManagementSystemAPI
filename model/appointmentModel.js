@@ -51,13 +51,13 @@ function getAppointmentById(id) {
         });
     });
 }
-function statusAppointmentById(id, state, callback) {
-    let AppointmentId = mongoose.Types.ObjectId(id);
+function statusAppointmentById(params, callback) {
+    let AppointmentId = mongoose.Types.ObjectId(params.id);
     return model().findByIdAndUpdate(
         { _id: AppointmentId },
         {
             $set: {
-                status: state,
+                status: params.status,
             },
         },
         { new: true },
