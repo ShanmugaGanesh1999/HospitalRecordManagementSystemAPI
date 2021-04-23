@@ -10,6 +10,7 @@ var utils = require("./common/utils");
 var appointmentRouter = require("./routes/appointment");
 var medicationRouter = require("./routes/medication");
 var patientRouter = require("./routes/patient");
+var managementRouter = require("./routes/management");
 const swaggerJSDoc = require("swagger-jsdoc");
 
 var connStr = utils.getConectionString();
@@ -41,7 +42,7 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 app.use("/appointment", appointmentRouter);
 app.use("/medication", medicationRouter);
-
+app.use("/management", managementRouter);
 app.use("/patients", patientRouter);
 
 // Swagger definition

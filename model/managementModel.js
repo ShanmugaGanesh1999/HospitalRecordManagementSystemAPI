@@ -3,24 +3,29 @@ var mongoose = require("mongoose");
 Schema = mongoose.Schema;
 ObjectId = Schema.ObjectId;
 
-const MedicationSchema = new Schema({
+const ManagementSchema = new Schema({
     id: ObjectId,
-    appointmentId: { type: Schema.Types.ObjectId, ref: "appointment" },
-    complication: String,
-    prescription: String,
+    date: {
+        type: Date,
+        default: Date.now(),
+    },
+    count: {
+        type: Number,
+        default: 0,
+    },
 });
 
-const MedicationModel = mongoose.model("Medication", MedicationSchema);
+const ManagementModel = mongoose.model("Management", ManagementSchema);
 
 function model() {
-    return MedicationModel;
+    return ManagementModel;
 }
 
-function createMedication(params) {
-    return model().create(params);
+function createCount() {
+    return model().create();
 }
 
-function getAllMedications() {
+function getAllCounts() {
     return new Promise((response, reject) => {
         model().find({}, function (err, data) {
             if (data) {
@@ -32,10 +37,10 @@ function getAllMedications() {
     });
 }
 
-function getMedicationById(id) {
-    let MedicationId = mongoose.Types.ObjectId(id);
+function getCountByDate(date) {
+    let curDate = mongoose.Types.Date(date);
     return new Promise((response, reject) => {
-        model().find({ _id: MedicationId }, function (err, data) {
+        model().find({ date: curDate }, function (err, data) {
             if (data) {
                 response(data);
             } else {
@@ -47,7 +52,7 @@ function getMedicationById(id) {
 
 module.exports = {
     model,
-    createMedication,
-    getAllMedications,
-    getMedicationById,
+    createCount,
+    getAllCounts,
+    getCountByDate,
 };
