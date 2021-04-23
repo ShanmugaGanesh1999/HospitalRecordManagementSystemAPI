@@ -8,7 +8,7 @@
     "database": {
         "username": "Shan1999",
         "password": "ShanAsAdmin",
-        "host": "cluster-sg-shard-00-02.oe4hd.mongodb.net",
+        "host": "cluster-sg.oe4hd.mongodb.net",
         "database": "HospitalMgt"
     }
 }
