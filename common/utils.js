@@ -30,7 +30,7 @@ var getConectionString = () => {
     connStr =
         "mongodb+srv://" +
         userOption +
-        "cluster-sg.oe4hd.mongodb.net/admin?retryWrites=true&w=majority";
+        "cluster-sg.oe4hd.mongodb.net/HospitalMgt?retryWrites=true&w=majority";
     // "mongodb://" +
     // userOption +
     // config.database.host +
