@@ -51,7 +51,7 @@ function getAppointmentById(id) {
         });
     });
 }
-function statusAppiontmentById(id, state, callback) {
+function statusAppointmentById(id, state, callback) {
     let AppointmentId = mongoose.Types.ObjectId(id);
     return model().findByIdAndUpdate(
         { _id: AppointmentId },
@@ -72,5 +72,5 @@ module.exports = {
     createAppointment,
     getAllAppointments,
     getAppointmentById,
-    statusAppiontmentById,
+    statusAppointmentById,
 };

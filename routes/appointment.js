@@ -175,7 +175,7 @@ router.get(
 
 /**
  * @swagger
- * /appointment/statusAppiontmentById/:
+ * /appointment/statusAppointmentById/:
  *   put:
  *     summary: Update appointment details
  *     tags:
@@ -216,12 +216,12 @@ router.get(
  */
 
 router.put(
-    "/statusAppiontmentById",
+    "/statusAppointmentById",
     // verifyToken.verifyToken,
     function (req, res) {
         var id = req.query.id,
             state = req.query.status;
-        appointmentModel.cancelAppiontmentById(id, state, function (err, data) {
+        appointmentModel.statusAppointmentById(id, state, function (err, data) {
             if (data) {
                 res.status(200).json({
                     message: "Updated status of appointment id:" + id,
