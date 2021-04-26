@@ -3,6 +3,8 @@ var router = express.Router();
 var utils = require("../common/utils");
 var verifyToken = require("../common/verifyToken");
 var managementModel = require("../model/managementModel");
+var dateFormat = require("dateformat");
+var now = new Date();
 
 /* GET Management listing. */
 router.get("/", function (req, res) {
@@ -188,7 +190,10 @@ router.put(
             .then((data) => {
                 if (data) {
                     data.forEach((element) => {
-                        if (Date(element.date) === Date(Date.now())) {
+                        if (
+                            dateFormat(element.date, "fullDate") ===
+                            dateFormat(now, "fullDate")
+                        ) {
                             var params = {
                                 id: element._id,
                                 state: req.query.state,
