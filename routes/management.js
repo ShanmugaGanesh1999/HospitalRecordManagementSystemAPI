@@ -134,18 +134,28 @@ router.get(
     function (req, res) {
         var date = req.query.date;
         managementModel
-            .getCountByDate(date)
+            .getAllCounts()
             .then((data) => {
-                if (data) {
-                    res.status(200).json({
-                        message:
-                            "Successfully fetched the Counts in given date:" +
-                            date,
-                        data: data,
+                if (data.length != 0) {
+                    data.forEach((element) => {
+                        if (
+                            dateFormat(element.date, "fullDate") ===
+                            dateFormat(date, "fullDate")
+                        ) {
+                            res.status(200).json({
+                                message:
+                                    "Successfully fetched count in given date",
+                                data: element,
+                            });
+                        } else {
+                            res.status(403).json({
+                                message: "No data found",
+                            });
+                        }
                     });
                 } else {
                     res.status(404).json({
-                        message: "Details not found",
+                        message: "No count found",
                     });
                 }
             })
@@ -188,7 +198,7 @@ router.put(
         managementModel
             .getAllCounts()
             .then((data) => {
-                if (data) {
+                if (data.length != 0) {
                     data.forEach((element) => {
                         if (
                             dateFormat(element.date, "fullDate") ===
@@ -217,7 +227,7 @@ router.put(
                     });
                 } else {
                     res.status(404).json({
-                        message: "No Management found",
+                        message: "No count found",
                     });
                 }
             })
