@@ -15,6 +15,11 @@ var patientsModel = require("../model/patientsModel");
  *     produces:
  *       - application/json
  *     parameters:
+ *       - name: x-access-token
+ *         description: send valid token
+ *         type: string
+ *         required: false
+ *         in: header
  *       - name: patient
  *         description: To create patient
  *         in: body
@@ -41,39 +46,43 @@ var patientsModel = require("../model/patientsModel");
  *       mobileNo:
  *         type: number
  */
-router.post("/createPatient", async function (req, res, next) {
-    try {
-        emailId = req.body.emailId;
-        var patientEmail = await patientsModel
-            .model()
-            .find({ emailId: emailId });
-        //console.log(req.body);
-        let patientData = req.body;
-        if (patientEmail == "") {
-            patientsModel
-                .createPatient(patientData)
-                .then((data) => {
-                    res.status(200).json({
-                        message: "Successfully created patient",
-                        data: data,
+
+router.post(
+    "/createPatient", // verifyToken.verifyToken,
+    async function (req, res, next) {
+        try {
+            emailId = req.body.emailId;
+            var patientEmail = await patientsModel
+                .model()
+                .find({ emailId: emailId });
+            //console.log(req.body);
+            let patientData = req.body;
+            if (patientEmail == "") {
+                patientsModel
+                    .createPatient(patientData)
+                    .then((data) => {
+                        res.status(200).json({
+                            message: "Successfully created patient",
+                            data: data,
+                        });
+                    })
+                    .catch((error) => {
+                        res.status(403).json({
+                            message: error,
+                        });
                     });
-                })
-                .catch((error) => {
-                    res.status(403).json({
-                        message: error,
-                    });
+            } else {
+                res.status(403).json({
+                    message: "Email already found",
                 });
-        } else {
+            }
+        } catch (error) {
             res.status(403).json({
-                message: "Email already found",
+                message: error.message,
             });
         }
-    } catch (error) {
-        res.status(403).json({
-            message: error.message,
-        });
-    }
-});
+    },
+);
 
 /**
  * @swagger
@@ -85,6 +94,12 @@ router.post("/createPatient", async function (req, res, next) {
  *     description: Get all patients
  *     produces:
  *       - application/json
+ *     parameters:
+ *       - name: x-access-token
+ *         description: send valid token
+ *         type: string
+ *         required: false
+ *         in: header
  *     responses:
  *       200:
  *         description: Successfully fetched all patients
