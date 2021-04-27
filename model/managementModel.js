@@ -34,18 +34,6 @@ function getAllCounts() {
     });
 }
 
-function getCountByDate(date) {
-    return new Promise((response, reject) => {
-        model().find({ date: date }, function (err, data) {
-            if (data) {
-                response(data);
-            } else {
-                reject(err);
-            }
-        });
-    });
-}
-
 function updateCountByDate(params, callback) {
     let mgtId = mongoose.Types.ObjectId(params.id);
     if (params.state === "1") {
@@ -77,6 +65,5 @@ module.exports = {
     model,
     createCount,
     getAllCounts,
-    getCountByDate,
     updateCountByDate,
 };
