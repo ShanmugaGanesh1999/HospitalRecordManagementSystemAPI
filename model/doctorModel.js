@@ -7,6 +7,7 @@ const doctorSchema = new Schema({
     id: ObjectId,
     doctorName: String,
     emailId: String,
+    password: String,
     mobileNo: Number,
     specialization: String,
     DOP: Date,

@@ -127,7 +127,7 @@ router.get("/getAllPatients", function (req, res) {
 
 /**
  * @swagger
- * /patients/getPatientsBypatientId/:
+ * /patients/getPatientsByPatientId/:
  *   get:
  *     summary: Get details of a patient by patientId
  *     tags:
@@ -136,7 +136,7 @@ router.get("/getAllPatients", function (req, res) {
  *     produces:
  *       - application/json
  *     parameters:
- *       - name: PatientId
+ *       - name: patientId
  *         description: patientId
  *         type: string
  *         in: query
@@ -145,13 +145,14 @@ router.get("/getAllPatients", function (req, res) {
  *       200:
  *         description:  Get details of an patient
  */
-router.get("/getPatientsBypatientId", async function (req, res) {
+router.get("/getPatientsByPatientId", async function (req, res) {
     try {
-        var patientId = req.query.PatientId;
-        var patient = await patientsModel
-            .model()
-            .find({ patientId: patientId });
+        var patientId = req.query.patientId;
+        // console.log(patientId);
+        var patient = await patientsModel.model().find({ _id: patientId });
+        // console.log(patient);
         if (patient != "") {
+            // console.log(patient);
             res.status(200).json({
                 message: "Fetched details of patient successfully",
                 data: patient,
