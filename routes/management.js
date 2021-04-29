@@ -81,11 +81,6 @@ router.post(
  *          type: number
  *          required: false
  *          in: query
- *        - name: searchText
- *          description: search text
- *          type: string
- *          required: false
- *          in: query
  *     responses:
  *       200:
  *         description:  Get details of all the Counts
@@ -100,29 +95,34 @@ router.get(
             skip: req.query.skip,
             limit: req.query.limit ? req.query.limit : 5,
         };
-        searchText = req.query.searchText ? req.query.searchText : "";
-        params["searchText"] = searchText;
+        let totCount;
         managementModel
-            .getAllCounts(params)
-            .then((management) => {
-                if (management != "") {
-                    res.status(200).json({
-                        message: "Successfully fetched details of all Counts",
-                        count: management.length,
-                        data: management,
+            .getAllCounts({ no: 1 })
+            .then((data) => {
+                managementModel
+                    .getAllCounts(params)
+                    .then((management) => {
+                        if (management != "") {
+                            res.status(200).json({
+                                message:
+                                    "Successfully fetched details of all Counts",
+                                count: data.length,
+                                data: management,
+                            });
+                        } else {
+                            res.status(200).json({
+                                message: "No data found",
+                                count: 0,
+                            });
+                        }
+                    })
+                    .catch((err) => {
+                        res.status(404).json({
+                            message: err,
+                        });
                     });
-                } else {
-                    res.status(200).json({
-                        message: "No data found",
-                        count: 0,
-                    });
-                }
             })
-            .catch((err) => {
-                res.status(404).json({
-                    message: err,
-                });
-            });
+            .catch((err) => console.log(err));
     },
 );
 
