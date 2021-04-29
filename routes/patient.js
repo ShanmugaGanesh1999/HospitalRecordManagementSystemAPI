@@ -130,7 +130,7 @@ router.get(
 
 /**
  * @swagger
- * /patients/getPatientsBypatientId/:
+ * /patients/getPatientsByPatientId/:
  *   get:
  *     summary: Get details of a patient by patientId
  *     tags:

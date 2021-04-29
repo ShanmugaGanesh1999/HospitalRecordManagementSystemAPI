@@ -12,6 +12,7 @@ var appointmentRouter = require("./routes/appointment");
 var medicationRouter = require("./routes/medication");
 var patientRouter = require("./routes/patient");
 var managementRouter = require("./routes/management");
+var commonRouter = require("./routes/common");
 
 const swaggerJSDoc = require("swagger-jsdoc");
 
@@ -47,6 +48,7 @@ app.use("/medication", medicationRouter);
 app.use("/management", managementRouter);
 app.use("/patients", patientRouter);
 app.use("/doctor", doctorRouter);
+app.use("/common", commonRouter);
 
 // Swagger definition
 var swaggerDefinition = {

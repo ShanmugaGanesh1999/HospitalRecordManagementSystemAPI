@@ -22,16 +22,39 @@ function createCount(no) {
     return model().create({ count: no });
 }
 
-function getAllCounts() {
-    return new Promise((response, reject) => {
-        model().find({}, function (err, data) {
-            if (data) {
-                response(data);
-            } else {
-                reject(err);
-            }
+function getAllCounts(params) {
+    var query = {};
+    if (params.searchText) {
+        query = {
+            date: {
+                $regex: new RegExp(params.searchText, "i"),
+            },
+        };
+    }
+    if (params.no == 0) {
+        return new Promise((response, reject) => {
+            model()
+                .find(query, function (err, data) {
+                    if (data) {
+                        response(data);
+                    } else {
+                        reject(err);
+                    }
+                })
+                .skip(parseInt(params.skip))
+                .limit(parseInt(params.limit));
         });
-    });
+    } else if (params.no == 1) {
+        return new Promise((response, reject) => {
+            model().find(query, function (err, data) {
+                if (data) {
+                    response(data);
+                } else {
+                    reject(err);
+                }
+            });
+        });
+    }
 }
 
 function updateCountByDate(params, callback) {

@@ -9,86 +9,6 @@ var doctorModel = require("../model/doctorModel");
 
 /**
  * @swagger
- * /doctor/createDoctor/:
- *   post:
- *     summary: To create doctor details
- *     tags:
- *       - Doctor
- *     description: To create doctor details
- *     produces:
- *       - application/json
- *     parameters:
- *       - name: x-access-token
- *         description: send valid token
- *         type: string
- *         required: false
- *         in: header
- *       - name: doctor
- *         description: To create doctor details
- *         in: body
- *         default: '{"doctorName":"Harsheni","emailId":"harshenic@gmail.com","mobileNo":"7871894772","specialization":"Anesthesiology","DOP":"01.01.2001"}'
- *         schema:
- *           $ref: '#/definitions/createDoctor'
- *     responses:
- *       200:
- *         description: Successfully created doctor details
- */
-/**
- * @swagger
- * definitions:
- *   createDoctor:
- *     properties:
- *       doctorName:
- *         type: string
- *       emailId:
- *         type: string
- *       mobileNo:
- *         type: number
- *       specialization:
- *         type: string
- *       DOP:
- *         type: date
- */
-router.post(
-    "/createDoctor",
-    // verifyToken.verifyToken,
-    async function (req, res, next) {
-        try {
-            var doctorEmail = await doctorModel
-                .model()
-                .find({ emailId: req.body.emailId });
-            let doctorData = req.body;
-            // console.log(req.body);
-            doctorData.status = "Away";
-            if (doctorEmail == "") {
-                doctorModel
-                    .createDoctor(doctorData)
-                    .then((data) => {
-                        res.status(200).json({
-                            message: "Successfully created Doctor",
-                            data: data,
-                        });
-                    })
-                    .catch((error) => {
-                        res.status(403).json({
-                            message: error,
-                        });
-                    });
-            } else {
-                res.status(403).json({
-                    message: "This Doctor details already created",
-                });
-            }
-        } catch (error) {
-            res.status(403).json({
-                message: error.message,
-            });
-        }
-    },
-);
-
-/**
- * @swagger
  * /doctor/getAlldoctors/:
  *   get:
  *     summary: Get all doctor details
@@ -174,7 +94,7 @@ router.get(
                 });
             } else {
                 res.status(404).json({
-                    message: "Not such doctor details available",
+                    message: "No such doctor details available",
                 });
             }
         } catch (error) {
@@ -241,10 +161,10 @@ router.get(
  * @swagger
  * /doctor/updateDoctorStatusById/:
  *   put:
- *     summary: Update candidates by id
+ *     summary: Update doctor status by id
  *     tags:
  *       - Doctor
- *     description: Update candidates details
+ *     description: Update doctor status by id
  *     produces:
  *       - application/json
  *     parameters:
@@ -254,19 +174,19 @@ router.get(
  *         required: false
  *         in: header
  *       - name: doctor
- *         description: update candidates details
+ *         description: Update doctor status by id
  *         in: body
  *         default: '{"id":"6082738d32c6042de4930ab9","status":"Active"}'
  *         schema:
- *           $ref: '#/definitions/updateCandidate'
+ *           $ref: '#/definitions/updateDoctorStatus'
  *     responses:
  *       200:
- *         description: Update candidates details Successfully
+ *         description: Updated doctor status by id Successfully
  */
 /**
  * @swagger
  * definitions:
- *   updateCandidate:
+ *   updateDoctorStatus:
  *     properties:
  *       id:
  *         type: string
@@ -305,6 +225,61 @@ router.put(
         } else {
             res.status(403).json({
                 message: "Not a valid id",
+            });
+        }
+    },
+);
+
+/**
+ * @swagger
+ * /doctor/getDoctorIdByEmailId/:
+ *   get:
+ *     summary: Get doctor email id by id
+ *     tags:
+ *       - Doctor
+ *     description: Get doctor email id by id
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - name: x-access-token
+ *         description: send valid token
+ *         type: string
+ *         required: false
+ *         in: header
+ *       - name: emailId
+ *         description: Get doctor email id by id
+ *         type: string
+ *         in: query
+ *         default: "harsheni@mailfence.com"
+ *         required: true
+ *     responses:
+ *       200:
+ *         description: Get doctor email id by id
+ */
+router.get(
+    "/getDoctorIdByEmailId",
+    // verifyToken.verifyToken,
+    async function (req, res) {
+        try {
+            var doctorEmailId = req.query.emailId;
+            // console.log(doctorEmailId);
+            var doctorData = await doctorModel
+                .model()
+                .find({ emailId: doctorEmailId });
+            // console.log(doctorData);
+            if (doctorData != "") {
+                res.status(200).json({
+                    message: "Fetched doctor id successfully",
+                    doctorId: doctorData[0]._id,
+                });
+            } else {
+                res.status(404).json({
+                    message: "No such doctor details available",
+                });
+            }
+        } catch (error) {
+            res.status(403).json({
+                message: error.message,
             });
         }
     },

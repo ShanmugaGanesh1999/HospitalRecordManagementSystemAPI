@@ -229,4 +229,65 @@ router.put(
     },
 );
 
+/**
+ * @swagger
+ * /appointment/getPatientIdByDoctorId/:
+ *   get:
+ *     summary: Get patient id by doctor id
+ *     tags:
+ *       - Appointment
+ *     description: Get patient id by doctor id
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - name: x-access-token
+ *         description: send valid token
+ *         type: string
+ *         required: false
+ *         in: header
+ *       - name: doctorId
+ *         description: Get patient id by doctor id
+ *         type: string
+ *         in: query
+ *         default: "6082b7b4f57e811f50e00ff4"
+ *         required: true
+ *     responses:
+ *       200:
+ *         description: Get patient id by doctor id
+ */
+router.get(
+    "/getPatientIdByDoctorId",
+    // verifyToken.verifyToken,
+    async function (req, res) {
+        try {
+            var doctorId = req.query.doctorId;
+            // console.log(doctorId);
+            var doctorData = await appointmentModel
+                .model()
+                .find({ doctorId: doctorId });
+            // console.log(doctorData.length);
+            var patientIdArr = [];
+            for (let i = 0; i < doctorData.length; i++) {
+                patientIdArr.push(doctorData[i].patientId);
+            }
+            if (doctorData.length > 0) {
+                res.status(200).json({
+                    message: "Fetched patient id successfully",
+                    patientId: patientIdArr,
+                    patientCount: patientIdArr.length,
+                });
+            } else {
+                res.status(200).json({
+                    message: "No patient assigned",
+                    patientCount: 0,
+                });
+            }
+        } catch (error) {
+            res.status(403).json({
+                message: error.message,
+            });
+        }
+    },
+);
+
 module.exports = router;
