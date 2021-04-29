@@ -81,10 +81,38 @@ function deletePatientsById(params, callback) {
     });
 }
 
+function getAllPatientsByName(params, callback) {
+    if (params.searchText != "") {
+        var query = {};
+        if (params.searchText) {
+            query = {
+                name: {
+                    $regex: new RegExp(params.searchText, "i"),
+                },
+            };
+        }
+        model()
+            .find({ name: query.name }, (err, res1) => {
+                callback(err, res1);
+            })
+            .skip(parseInt(params.skip))
+            .limit(parseInt(params.limit));
+    } else {
+        model()
+            .find({}, (err, res2) => {
+                callback(err, res2);
+            })
+            .skip(parseInt(params.skip))
+            .limit(parseInt(params.limit));
+    }
+}
+
 module.exports = {
     model,
     createPatient,
     getAllPatients,
     updatePatientById,
     deletePatientsById,
+    updatepatientStatusById,
+    getAllPatientsByName,
 };

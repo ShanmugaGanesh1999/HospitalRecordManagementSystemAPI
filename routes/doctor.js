@@ -187,6 +187,58 @@ router.get(
 
 /**
  * @swagger
+ * /doctor/getDoctorsByStatus/:
+ *   get:
+ *     summary: Get details of a doctor by Status
+ *     tags:
+ *       - Doctor
+ *     description: Get details of a doctor by Status
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - name: x-access-token
+ *         description: send valid token
+ *         type: string
+ *         required: false
+ *         in: header
+ *       - name: status
+ *         description: Doctor status
+ *         type: string
+ *         in: query
+ *         default: 'Active'
+ *         required: true
+ *     responses:
+ *       200:
+ *         description:  Get details of a doctor by status
+ */
+router.get(
+    "/getDoctorsByStatus",
+    // verifyToken.verifyToken,
+    async function (req, res) {
+        try {
+            var doctorStatus = req.query.status;
+            var doctorData = await doctorModel
+                .model()
+                .find({ status: doctorStatus });
+            if (doctorData != "") {
+                res.status(200).json({
+                    message: "Fetched details of doctors successfully",
+                    data: doctorData,
+                });
+            } else {
+                res.status(404).json({
+                    message: "No doctors available",
+                });
+            }
+        } catch (error) {
+            res.status(403).json({
+                message: "No doctors available",
+            });
+        }
+    },
+);
+/**
+ * @swagger
  * /doctor/updateDoctorStatusById/:
  *   put:
  *     summary: Update candidates by id
