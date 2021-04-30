@@ -290,4 +290,71 @@ router.get(
     },
 );
 
+/**
+ * @swagger
+ * /appointment/getAppointmentDetailsByPatientId/:
+ *   get:
+ *     summary: Get appointment details by patient id
+ *     tags:
+ *       - Appointment
+ *     description: Get appointment details by patient id
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - name: x-access-token
+ *         description: send valid token
+ *         type: string
+ *         required: false
+ *         in: header
+ *       - name: patientObjectId
+ *         description: Get appointment details by patient id
+ *         type: string
+ *         in: query
+ *         default: "6082b7b4f57e811f50e00ff4"
+ *         required: true
+ *     responses:
+ *       200:
+ *         description: Get appointment details by patient id
+ */
+router.get(
+    "/getAppointmentDetailsByPatientId",
+    // verifyToken.verifyToken,
+    async function (req, res) {
+        try {
+            var patientId = req.query.patientObjectId;
+            var appointmentData = await appointmentModel
+                .model()
+                .find({ patientId: patientId });
+            appointmentData = appointmentData[0];
+            if (appointmentData != "") {
+                appointmentModel.getAppointmentDetailsByPatientId(
+                    appointmentData,
+                    function (err, data) {
+                        if (data) {
+                            res.status(200).json({
+                                message:
+                                    "Fetched all appointment details of the patient",
+                                data: data,
+                            });
+                            //console.log(data);
+                        } else {
+                            res.status(404).json({
+                                message: err,
+                            });
+                        }
+                    },
+                );
+            } else {
+                res.status(404).json({
+                    message: "No such patient",
+                });
+            }
+        } catch (error) {
+            res.status(403).json({
+                message: error.message,
+            });
+        }
+    },
+);
+
 module.exports = router;
