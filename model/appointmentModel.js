@@ -1,4 +1,5 @@
 var mongoose = require("mongoose");
+const { resolveContent } = require("nodemailer/lib/shared");
 
 Schema = mongoose.Schema;
 ObjectId = Schema.ObjectId;
@@ -29,10 +30,14 @@ function createAppointment(params) {
 
 function getAllAppointments(params) {
     let query = {},
+        match = {},
+        aggregate;
+
+    if (params.status != "") {
         match = {
             status: params.status,
-        },
-        aggregate;
+        };
+    }
     if (params.search !== "") {
         query = {
             name: {
@@ -89,18 +94,30 @@ function getAllAppointments(params) {
             },
         },
     ];
-    return new Promise((response, reject) => {
-        model()
-            .aggregate(aggregate, (err, data) => {
-                if (data) {
-                    response(data);
-                } else {
+    if (params.no == 0) {
+        return new Promise((resolve, reject) => {
+            model()
+                .aggregate(aggregate, (err, data) => {
+                    if (data) {
+                        resolve(data);
+                    } else {
+                        reject(err);
+                    }
+                })
+                .skip(parseInt(params.skip))
+                .limit(parseInt(params.limit));
+        });
+    } else if (params.no == 1) {
+        return new Promise((resolve, reject) => {
+            model().aggregate(aggregate, (err, res) => {
+                if (err) {
                     reject(err);
+                } else {
+                    resolve(res);
                 }
-            })
-            .skip(parseInt(params.skip))
-            .limit(parseInt(params.limit));
-    });
+            });
+        });
+    }
 }
 
 function getAppointmentById(id) {
