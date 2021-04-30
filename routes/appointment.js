@@ -101,7 +101,11 @@ router.get(
     // verifyToken.verifyToken,
     function (req, res) {
         appointmentModel
-            .getAllAppointments()
+            .getAllAppointments({
+                no: 1,
+                status: "",
+                search: "",
+            })
             .then((appointment) => {
                 if (appointment) {
                     let elementList = [];
@@ -391,7 +395,7 @@ router.get(
  *        - name: status
  *          description: status
  *          type: string
- *          required: false
+ *          required: true
  *          in: query
  *        - name: search
  *          description: search patient with name
@@ -418,53 +422,74 @@ router.get(
     // verifyToken.verifyToken,
     function (req, res) {
         var params = {
+            no: 0,
             status: req.query.status,
             search: req.query.search ? req.query.search : "",
             skip: req.query.skip,
             limit: req.query.limit ? req.query.limit : 5,
         };
         appointmentModel
-            .getAllAppointments(params)
-            .then((appointment) => {
-                if (appointment) {
-                    let elementList = [];
-                    appointment.forEach((element) => {
-                        if (
-                            dateformat(element.date, "shortDate") ===
-                            dateformat(now(), "shortDate")
-                        ) {
-                            element["patientAge"] =
-                                dateformat(now(), "yyyy") -
-                                element.patientDob.getFullYear();
-                            element["doctorExperience"] =
-                                dateformat(now(), "yyyy") -
-                                element.doctorDOP.getFullYear();
-                            elementList.push(element);
-                        }
-                    });
-                    if (elementList.length > 0) {
-                        res.status(200).json({
-                            message: "Appointments found",
-                            count: elementList.length,
-                            data: elementList,
-                        });
-                    } else {
-                        res.status(200).json({
-                            message: "No appointments found current date",
-                            count: 0,
-                        });
-                    }
-                } else {
-                    res.status(404).json({
-                        message: "Can't fetch Appointments",
-                    });
-                }
+            .getAllAppointments({
+                no: 1,
+                status: req.query.status ? req.query.status : "",
+                search: req.query.search ? req.query.search : "",
             })
-            .catch((err) => {
-                res.status(404).json({
-                    message: err,
-                });
-            });
+            .then((totData) => {
+                appointmentModel
+                    .getAllAppointments(params)
+                    .then((appointment) => {
+                        if (appointment) {
+                            let elementList = [],
+                                totList = [];
+                            totData.forEach((element) => {
+                                if (
+                                    dateformat(element.date, "shortDate") ===
+                                    dateformat(now(), "shortDate")
+                                ) {
+                                    totList.push(element);
+                                }
+                            });
+                            appointment.forEach((element) => {
+                                if (
+                                    dateformat(element.date, "shortDate") ===
+                                    dateformat(now(), "shortDate")
+                                ) {
+                                    element["patientAge"] =
+                                        dateformat(now(), "yyyy") -
+                                        element.patientDob.getFullYear();
+                                    element["doctorExperience"] =
+                                        dateformat(now(), "yyyy") -
+                                        element.doctorDOP.getFullYear();
+                                    elementList.push(element);
+                                }
+                            });
+
+                            if (elementList.length > 0 && totList.length > 0) {
+                                res.status(200).json({
+                                    message: "Appointments found",
+                                    count: totList.length,
+                                    data: elementList,
+                                });
+                            } else {
+                                res.status(200).json({
+                                    message:
+                                        "No appointments found current date",
+                                    count: 0,
+                                });
+                            }
+                        } else {
+                            res.status(404).json({
+                                message: "Can't fetch Appointments",
+                            });
+                        }
+                    })
+                    .catch((err) => {
+                        res.status(404).json({
+                            message: err,
+                        });
+                    });
+            })
+            .catch((err) => {});
     },
 );
 
