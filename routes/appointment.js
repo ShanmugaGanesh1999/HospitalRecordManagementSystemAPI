@@ -268,7 +268,8 @@ router.get(
             // console.log(doctorData.length);
             var patientIdArr = [];
             for (let i = 0; i < doctorData.length; i++) {
-                patientIdArr.push(doctorData[i].patientId);
+                if (doctorData[i].status == "Pending")
+                    patientIdArr.push(doctorData[i].patientId);
             }
             if (doctorData.length > 0) {
                 res.status(200).json({
