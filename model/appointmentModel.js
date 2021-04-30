@@ -131,10 +131,67 @@ function statusAppointmentById(params, callback) {
     );
 }
 
+function getAppointmentDetailsByPatientId(appointmentData, callback) {
+    //console.log(appointmentData._id);
+    var aggregate = [
+        {
+            $lookup: {
+                from: "medications",
+                localField: "_id",
+                foreignField: "appointmentId",
+                as: "medication",
+            },
+        },
+        {
+            $unwind: {
+                path: "$medication",
+            },
+        },
+        {
+            $match: {
+                "medication.appointmentId": appointmentData._id,
+            },
+        },
+        {
+            $lookup: {
+                from: "doctors",
+                localField: "doctorId",
+                foreignField: "_id",
+                as: "doctor",
+            },
+        },
+        {
+            $unwind: {
+                path: "$doctor",
+            },
+        },
+        {
+            $match: {
+                "doctor._id": appointmentData.doctorId,
+            },
+        },
+        {
+            $project: {
+                _id: 0,
+                date: appointmentData.date,
+                status: appointmentData.status,
+                complication: "$medication.complication",
+                prescription: "$medication.prescription",
+                doctorName: "$doctor.doctorName",
+                specialization: "$doctor.specialization",
+            },
+        },
+    ];
+    model().aggregate(aggregate, (err, res2) => {
+        callback(err, res2);
+    });
+}
+
 module.exports = {
     model,
     createAppointment,
     getAllAppointments,
     getAppointmentById,
     statusAppointmentById,
+    getAppointmentDetailsByPatientId,
 };
