@@ -9,88 +9,6 @@ var doctorModel = require("../model/doctorModel");
 
 /**
  * @swagger
- * /doctor/createDoctor/:
- *   post:
- *     summary: To create doctor details
- *     tags:
- *       - Doctor
- *     description: To create doctor details
- *     produces:
- *       - application/json
- *     parameters:
- *       - name: x-access-token
- *         description: send valid token
- *         type: string
- *         required: false
- *         in: header
- *       - name: doctor
- *         description: To create doctor details
- *         in: body
- *         default: '{"doctorName":"Harsha","emailId":"harshenic@gmail.com","password":"harsha11","mobileNo":"7871894772","specialization":"Anesthesiology","DOP":"01.01.2001"}'
- *         schema:
- *           $ref: '#/definitions/createDoctor'
- *     responses:
- *       200:
- *         description: Successfully created doctor details
- */
-/**
- * @swagger
- * definitions:
- *   createDoctor:
- *     properties:
- *       doctorName:
- *         type: string
- *       emailId:
- *         type: string
- *       password:
- *         type: string
- *       mobileNo:
- *         type: number
- *       specialization:
- *         type: string
- *       DOP:
- *         type: date
- */
-router.post(
-    "/createDoctor",
-    // verifyToken.verifyToken,
-    async function (req, res, next) {
-        try {
-            var doctorEmail = await doctorModel
-                .model()
-                .find({ emailId: req.body.emailId });
-            let doctorData = req.body;
-            // console.log(doctorData);
-            doctorData.status = "Away";
-            if (doctorEmail.length === 0) {
-                doctorModel
-                    .createDoctor(doctorData)
-                    .then((data) => {
-                        res.status(200).json({
-                            message: "Successfully created Doctor",
-                            data: data,
-                        });
-                    })
-                    .catch((error) => {
-                        res.status(403).json({
-                            message: error,
-                        });
-                    });
-            } else {
-                res.status(403).json({
-                    message: "This Doctor details already created",
-                });
-            }
-        } catch (error) {
-            res.status(403).json({
-                message: error.message,
-            });
-        }
-    },
-);
-
-/**
- * @swagger
  * /doctor/getAlldoctors/:
  *   get:
  *     summary: Get all doctor details
@@ -187,6 +105,58 @@ router.get(
     },
 );
 
+/**
+ * @swagger
+ * /doctor/getDoctorsByStatus/:
+ *   get:
+ *     summary: Get details of a doctor by Status
+ *     tags:
+ *       - Doctor
+ *     description: Get details of a doctor by Status
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - name: x-access-token
+ *         description: send valid token
+ *         type: string
+ *         required: false
+ *         in: header
+ *       - name: status
+ *         description: Doctor status
+ *         type: string
+ *         in: query
+ *         default: 'Active'
+ *         required: true
+ *     responses:
+ *       200:
+ *         description:  Get details of a doctor by status
+ */
+router.get(
+    "/getDoctorsByStatus",
+    // verifyToken.verifyToken,
+    async function (req, res) {
+        try {
+            var doctorStatus = req.query.status;
+            var doctorData = await doctorModel
+                .model()
+                .find({ status: doctorStatus });
+            if (doctorData != "") {
+                res.status(200).json({
+                    message: "Fetched details of doctors successfully",
+                    data: doctorData,
+                });
+            } else {
+                res.status(404).json({
+                    message: "No doctors available",
+                });
+            }
+        } catch (error) {
+            res.status(403).json({
+                message: "No doctors available",
+            });
+        }
+    },
+);
 /**
  * @swagger
  * /doctor/updateDoctorStatusById/:

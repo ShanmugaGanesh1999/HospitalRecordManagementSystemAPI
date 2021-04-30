@@ -71,6 +71,16 @@ router.post(
  *          type: string
  *          required: false
  *          in: header
+ *        - name: skip
+ *          description: skip
+ *          type: number
+ *          required: true
+ *          in: query
+ *        - name: limit
+ *          description: limit
+ *          type: number
+ *          required: false
+ *          in: query
  *     responses:
  *       200:
  *         description:  Get details of all the Counts
@@ -80,26 +90,39 @@ router.get(
     "/getAllCounts",
     // verifyToken.verifyToken,
     function (req, res) {
+        var params = {
+            no: 0,
+            skip: req.query.skip,
+            limit: req.query.limit ? req.query.limit : 5,
+        };
+        let totCount;
         managementModel
-            .getAllCounts()
-            .then((management) => {
-                if (management) {
-                    res.status(200).json({
-                        message: "Successfully fetched details of all Counts",
-                        count: management.length,
-                        data: management,
+            .getAllCounts({ no: 1 })
+            .then((data) => {
+                managementModel
+                    .getAllCounts(params)
+                    .then((management) => {
+                        if (management != "") {
+                            res.status(200).json({
+                                message:
+                                    "Successfully fetched details of all Counts",
+                                count: data.length,
+                                data: management,
+                            });
+                        } else {
+                            res.status(200).json({
+                                message: "No data found",
+                                count: 0,
+                            });
+                        }
+                    })
+                    .catch((err) => {
+                        res.status(404).json({
+                            message: err,
+                        });
                     });
-                } else {
-                    res.status(404).json({
-                        message: "No Management found",
-                    });
-                }
             })
-            .catch((err) => {
-                res.status(404).json({
-                    message: err,
-                });
-            });
+            .catch((err) => console.log(err));
     },
 );
 
@@ -196,7 +219,7 @@ router.put(
     // verifyToken.verifyToken,
     function (req, res) {
         managementModel
-            .getAllCounts()
+            .getAllCounts({ no: 1 })
             .then((data) => {
                 if (data.length != 0) {
                     data.forEach((element) => {
