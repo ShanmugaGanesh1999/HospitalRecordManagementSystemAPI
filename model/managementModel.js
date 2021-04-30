@@ -23,18 +23,10 @@ function createCount(no) {
 }
 
 function getAllCounts(params) {
-    var query = {};
-    if (params.searchText) {
-        query = {
-            date: {
-                $regex: new RegExp(params.searchText, "i"),
-            },
-        };
-    }
     if (params.no == 0) {
         return new Promise((response, reject) => {
             model()
-                .find(query, function (err, data) {
+                .find({}, function (err, data) {
                     if (data) {
                         response(data);
                     } else {
@@ -46,7 +38,7 @@ function getAllCounts(params) {
         });
     } else if (params.no == 1) {
         return new Promise((response, reject) => {
-            model().find(query, function (err, data) {
+            model().find({}, function (err, data) {
                 if (data) {
                     response(data);
                 } else {
