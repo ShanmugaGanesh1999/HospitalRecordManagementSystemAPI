@@ -3,6 +3,7 @@ var router = express.Router();
 var utils = require("../common/utils");
 var verifyToken = require("../common/verifyToken");
 var appointmentModel = require("../model/appointmentModel");
+const dateformat = require("dateformat");
 
 /* GET Appointment listing. */
 router.get("/", function (req, res) {
@@ -354,6 +355,68 @@ router.get(
                 message: error.message,
             });
         }
+    },
+);
+/**
+ * @swagger
+ * /appointment/getAllAppointmentsToday/:
+ *   get:
+ *     summary: Get details of all the appointments
+ *     tags:
+ *       - Appointment
+ *     description: Get details of all the appointments
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *        - name: x-access-token
+ *          description: send valid token
+ *          type: string
+ *          required: false
+ *          in: header
+ *     responses:
+ *       200:
+ *         description:  Get details of all the appointments
+ */
+
+router.get(
+    "/getAllAppointmentsToday",
+    // verifyToken.verifyToken,
+    function (req, res) {
+        appointmentModel
+            .getAllAppointments()
+            .then((appointment) => {
+                if (appointment) {
+                    let elementList = [];
+                    appointment.forEach((element) => {
+                        if (
+                            dateformat(element.date, "shortDate") ===
+                            dateformat(Date.now(), "shortDate")
+                        ) {
+                            elementList.push(element);
+                        }
+                    });
+                    if (elementList.length > 0) {
+                        res.status(200).json({
+                            message: "Appointments found",
+                            count: elementList.length,
+                            data: elementList,
+                        });
+                    } else {
+                        res.status(200).json({
+                            message: "No appointments found current date",
+                        });
+                    }
+                } else {
+                    res.status(404).json({
+                        message: "Can't fetch Appointments",
+                    });
+                }
+            })
+            .catch((err) => {
+                res.status(404).json({
+                    message: err,
+                });
+            });
     },
 );
 
