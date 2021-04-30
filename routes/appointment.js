@@ -279,12 +279,13 @@ router.get(
             var doctorData = await appointmentModel
                 .model()
                 .find({ doctorId: doctorId });
-            // console.log(doctorData.length);
+            // console.log(doctorData);
             var patientIdArr = [];
             for (let i = 0; i < doctorData.length; i++) {
-                if (doctorData[i].status == "Pending")
+                if (doctorData[i].status == "Finished")
                     patientIdArr.push(doctorData[i].patientId);
             }
+            // console.log(patientIdArr)
             if (doctorData.length > 0) {
                 res.status(200).json({
                     message: "Fetched patient id successfully",
