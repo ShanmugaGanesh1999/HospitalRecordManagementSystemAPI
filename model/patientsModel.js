@@ -99,8 +99,8 @@ function getAllPatientsByName(params, callback) {
             .limit(parseInt(params.limit));
     } else {
         model()
-            .find({}, (err, res2) => {
-                callback(err, res2);
+            .find({}, (err, res1) => {
+                callback(err, res1);
             })
             .skip(parseInt(params.skip))
             .limit(parseInt(params.limit));
@@ -113,6 +113,5 @@ module.exports = {
     getAllPatients,
     updatePatientById,
     deletePatientsById,
-    updatepatientStatusById,
     getAllPatientsByName,
 };

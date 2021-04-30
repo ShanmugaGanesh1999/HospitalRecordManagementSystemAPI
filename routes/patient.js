@@ -68,7 +68,7 @@ router.post(
                     })
                     .catch((error) => {
                         res.status(403).json({
-                            message: "Patient not added",
+                            message: error,
                         });
                     });
             } else {
@@ -104,33 +104,30 @@ router.post(
  *       200:
  *         description: Successfully fetched all patients
  */
-router.get(
-    "/getAllPatients", // verifyToken.verifyToken,
-    function (req, res) {
-        patientsModel.getAllPatients((err, res1) => {
-            try {
-                if (res1.length > 0) {
-                    res.status(200).json({
-                        message: "Fetched all patients",
-                        data: res1,
-                    });
-                } else {
-                    res.status(404).json({
-                        message: "No patients",
-                    });
-                }
-            } catch (error) {
+router.get("/getAllPatients", function (req, res) {
+    patientsModel.getAllPatients((err, res1) => {
+        try {
+            if (res1.length > 0) {
+                res.status(200).json({
+                    message: "Fetched all patients",
+                    data: res1,
+                });
+            } else {
                 res.status(404).json({
-                    error: error,
+                    message: "No patients",
                 });
             }
-        });
-    },
-);
+        } catch (error) {
+            res.status(404).json({
+                error: error,
+            });
+        }
+    });
+});
 
 /**
  * @swagger
- * /patients/getPatientsByPatientId/:
+ * /patients/getPatientsByPatientId:
  *   get:
  *     summary: Get details of a patient by patientId
  *     tags:
@@ -139,11 +136,6 @@ router.get(
  *     produces:
  *       - application/json
  *     parameters:
- *       - name: x-access-token
- *         description: send valid token
- *         type: string
- *         required: false
- *         in: header
  *       - name: patientId
  *         description: patientId
  *         type: string
@@ -153,108 +145,31 @@ router.get(
  *       200:
  *         description:  Get details of an patient
  */
-router.get(
-    "/getPatientsBypatientId", // verifyToken.verifyToken,
-    async function (req, res) {
-        try {
-            var patientId = req.query.patientId;
-            var patient = await patientsModel
-                .model()
-                .find({ patientId: patientId });
-            if (patient != "") {
-                res.status(200).json({
-                    message: "Fetched details of patient successfully",
-                    data: patient,
-                });
-            } else {
-                res.status(404).json({
-                    message: "No such patient",
-                });
-            }
-        } catch (error) {
-            res.status(403).json({
-                message: error.message,
+router.get("/getPatientsByPatientId", async function (req, res) {
+    try {
+        var patientId = req.query.patientId;
+        //console.log(patientId);
+        var patient = await patientsModel
+            .model()
+            .find({ patientId: patientId });
+        //console.log(patient);
+        if (patient != "") {
+            // console.log(patient);
+            res.status(200).json({
+                message: "Fetched details of patient successfully",
+                data: patient,
+            });
+        } else {
+            res.status(404).json({
+                message: "No such patient",
             });
         }
-    },
-);
-
-/**
- * @swagger
- * /patients/getAllPatientsByName/:
- *   get:
- *     summary: Get all patients by name
- *     tags:
- *       - Patients
- *     description: Get all patients by name
- *     produces:
- *       - application/json
- *     parameters:
- *       - name: x-access-token
- *         description: send valid token
- *         type: string
- *         required: false
- *         in: header
- *       - name: skip
- *         description: skip
- *         type: number
- *         required: false
- *         in: query
- *       - name: limit
- *         description: limit
- *         type: number
- *         required: false
- *         in: query
- *       - name: searchText
- *         description: search text
- *         type: string
- *         required: false
- *         in: query
- *     responses:
- *       200:
- *         description: Successfully fetched all patients by name
- */
-router.get(
-    "/getAllPatientsByName",
-    //verifyToken.verifyToken,
-    function (req, res) {
-        var params = {
-            skip: req.query.skip ? req.query.skip : "0",
-            limit: req.query.limit ? req.query.limit : "5",
-        };
-        searchText = req.query.searchText ? req.query.searchText : "";
-        params["searchText"] = searchText;
-        // console.log(params);
-
-        patientsModel.getAllPatientsByName(params, async (err, res1) => {
-            try {
-                var searchDataCount = res1.length;
-                var length = await patientsModel.model().find({});
-                if (params.searchText.length != 0)
-                    totalLength = searchDataCount;
-                else totalLength = length.length;
-                // console.log(searchDataCount);
-                if (res1.length > 0) {
-                    res.status(200).json({
-                        message: "Fetched patients details",
-                        data: res1,
-                        searchDataCount: searchDataCount,
-                        totalLength: totalLength,
-                    });
-                } else {
-                    // console.log("1");
-                    res.status(404).json({
-                        message: "Enter patient name",
-                    });
-                }
-            } catch (error) {
-                res.status(404).json({
-                    message: "Incorrect patient name!",
-                });
-            }
+    } catch (error) {
+        res.status(403).json({
+            message: error.message,
         });
-    },
-);
+    }
+});
 
 /**
  * @swagger
@@ -368,5 +283,81 @@ router.delete("/deletePatientsById", async function (req, res) {
         });
     }
 });
+
+/**
+ * @swagger
+ * /patients/getAllPatientsByName/:
+ *   get:
+ *     summary: Get patients by name
+ *     tags:
+ *       - Patients
+ *     description: Get patients by name
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - name: x-access-token
+ *         description: send valid token
+ *         type: string
+ *         required: false
+ *         in: header
+ *       - name: skip
+ *         description: skip
+ *         type: number
+ *         required: false
+ *         in: query
+ *       - name: limit
+ *         description: limit
+ *         type: number
+ *         required: false
+ *         in: query
+ *       - name: searchText
+ *         description: search text
+ *         type: string
+ *         required: false
+ *         in: query
+ *     responses:
+ *       200:
+ *         description: Successfully fetched patients by name
+ */
+router.get(
+    "/getAllPatientsByName",
+    //verifyToken.verifyToken,
+    function (req, res) {
+        var params = {
+            skip: req.query.skip ? req.query.skip : "0",
+            limit: req.query.limit ? req.query.limit : "0",
+        };
+        searchText = req.query.searchText ? req.query.searchText : "";
+        params["searchText"] = searchText;
+        // console.log(params);
+        patientsModel.getAllPatientsByName(params, async (err, res1) => {
+            try {
+                var searchDataCount = res1.length;
+                var length = await patientsModel.model().find({});
+                if (params.searchText.length != 0)
+                    totalLength = searchDataCount;
+                else totalLength = length.length;
+                // console.log(searchDataCount);
+                if (res1.length > 0) {
+                    res.status(200).json({
+                        message: "Fetched all the details",
+                        data: res1,
+                        searchDataCount: searchDataCount,
+                        totalLength: totalLength,
+                    });
+                } else {
+                    // console.log("1");
+                    res.status(404).json({
+                        message: "Incorrect Patient name!",
+                    });
+                }
+            } catch (error) {
+                res.status(404).json({
+                    error: error.message,
+                });
+            }
+        });
+    },
+);
 
 module.exports = router;
