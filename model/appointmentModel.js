@@ -205,66 +205,60 @@ function getAppointmentDetailsByPatientId(appointmentData, callback) {
 }
 
 function getAllPendingPatients(params, callback) {
-    console.log(params);
-    let doctorId = mongoose.Types.ObjectId(params.doctorId);
-    var match = { $and: [{ status: "Finished" }, { "doctor._id": doctorId }] };
-    if (params.searchText != "") {
-        var query = {};
-        if (params.searchText) {
-            query = {
-                name: {
-                    $regex: new RegExp(params.searchText, "i"),
-                },
-            };
-            match = {
-                $and: [{ status: "Finished" }, { "doctor._id": doctorId }],
-            };
-        }
-        var aggregate = [
-            {
-                $lookup: {
-                    from: "doctors",
-                    localField: "doctorId",
-                    foreignField: "_id",
-                    as: "doc",
-                },
+    // console.log(params);
+    var aggregate = [
+        {
+            $lookup: {
+                from: "doctors",
+                localField: "doctorId",
+                foreignField: "_id",
+                as: "doc",
             },
-            {
-                $unwind: {
-                    path: "$doc",
-                },
+        },
+        {
+            $unwind: {
+                path: "$doc",
             },
+        },
 
-            {
-                $lookup: {
-                    from: "patients",
-                    localField: "patientId",
-                    foreignField: "_id",
-                    as: "pat",
-                },
+        {
+            $lookup: {
+                from: "patients",
+                localField: "patientId",
+                foreignField: "_id",
+                as: "pat",
             },
-            {
-                $unwind: {
-                    path: "$pat",
-                },
+        },
+        {
+            $unwind: {
+                path: "$pat",
             },
-            {
-                $match: match,
+        },
+        {
+            $match: {
+                status: "Pending",
             },
-            {
-                $project: {
-                    patients: "$pat",
-                },
+        },
+        {
+            $project: {
+                status: "$status",
+                name: "$pat.name",
+                emailId: "$pat.emailId",
+                mobileNo: "$pat.mobileNo",
+                gender: "$pat.gender",
+                dob: "$pat.dob",
+                patientId: "$pat.patientId",
+                doctorId: "$doc._id",
             },
-        ];
-        model()
-            .aggregate(aggregate, (err, res2) => {
-                // console.log(res2);
-                callback(err, res2);
-            })
-            .skip(parseInt(params.skip))
-            .limit(parseInt(10));
-    }
+        },
+    ];
+    model()
+        .aggregate(aggregate, (err, res2) => {
+            // console.log(res2);
+            callback(err, res2);
+        })
+        .skip(parseInt(params.skip))
+        .limit(parseInt(10));
 }
 
 module.exports = {

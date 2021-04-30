@@ -286,7 +286,7 @@ router.get(
             // console.log(doctorData);
             var patientIdArr = [];
             for (let i = 0; i < doctorData.length; i++) {
-                if (doctorData[i].status == "Finished")
+                if (doctorData[i].status == "Pending")
                     patientIdArr.push(doctorData[i].patientId);
             }
             // console.log(patientIdArr)
@@ -548,24 +548,47 @@ router.get(
         // console.log(params);
         appointmentModel.getAllPendingPatients(params, async (err, res1) => {
             try {
-                console.log(res1);
-                var searchDataCount = res1.length;
+                // console.log(res1.length);
+                // res.status(200).json({
+                //     message: "Fetched all the details",
+                //     data: res1,
+                // });
+                var docArr = [];
+                for (let i = 0; i < res1.length; i++) {
+                    if (
+                        res1[i].doctorId == req.query.doctorId &&
+                        res1[i].name
+                            .toLowerCase()
+                            .includes(searchText.toLowerCase())
+                    ) {
+                        docArr.push(res1[i]);
+                    }
+                }
+                docArr1 = [];
+                if (params.limit > docArr.length) {
+                    limit = docArr.length;
+                } else {
+                    limit = params.limit;
+                }
+                for (let i = 0; i < limit; i++) {
+                    docArr1.push(docArr[i]);
+                }
+                var searchDataCount = docArr1.length;
+                // console.log(docArr.length);
                 var length = await appointmentModel.model().find({});
-                if (params.searchText.length != 0)
-                    totalLength = searchDataCount;
-                else totalLength = length.length;
+                totalLength = length.length;
                 // console.log(searchDataCount);
-                if (res1.length > 0) {
+                if (docArr1.length > 0) {
                     res.status(200).json({
-                        message: "Fetched all the details",
-                        data: res1,
+                        message: "Fetched all pending patient details",
+                        data: docArr1,
                         searchDataCount: searchDataCount,
                         totalLength: totalLength,
                     });
                 } else {
                     // console.log("1");
                     res.status(404).json({
-                        message: "Incorrect Doctor Details",
+                        message: "No pending details found",
                     });
                 }
             } catch (error) {
