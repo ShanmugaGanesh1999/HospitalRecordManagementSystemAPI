@@ -449,6 +449,7 @@ router.get(
                     } else {
                         res.status(200).json({
                             message: "No appointments found current date",
+                            count: 0,
                         });
                     }
                 } else {
