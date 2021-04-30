@@ -27,15 +27,79 @@ function createAppointment(params) {
     return model().create(params);
 }
 
-function getAllAppointments() {
+function getAllAppointments(params) {
+    let query = {},
+        match = {
+            status: params.status,
+        },
+        aggregate;
+    if (params.search !== "") {
+        query = {
+            name: {
+                $regex: new RegExp(params.search, "i"),
+            },
+        };
+        match = {
+            $and: [{ status: params.status }, { "pat.name": query.name }],
+        };
+    }
+    aggregate = [
+        {
+            $lookup: {
+                from: "doctors",
+                localField: "doctorId",
+                foreignField: "_id",
+                as: "doc",
+            },
+        },
+        {
+            $unwind: {
+                path: "$doc",
+            },
+        },
+        {
+            $lookup: {
+                from: "patients",
+                localField: "patientId",
+                foreignField: "_id",
+                as: "pat",
+            },
+        },
+        {
+            $unwind: {
+                path: "$pat",
+            },
+        },
+        {
+            $match: match,
+        },
+        {
+            $project: {
+                _id: 0,
+                date: "$date",
+                patientId: "$pat.patientId",
+                patientName: "$pat.name",
+                patientEmailId: "$pat.emailId",
+                patientGender: "$pat.gender",
+                patientDob: "$pat.dob",
+                doctorName: "$doc.doctorName",
+                doctorEmailId: "$doc.emailId",
+                doctorSpecialization: "$doc.specialization",
+                doctorDOP: "$doc.DOP",
+            },
+        },
+    ];
     return new Promise((response, reject) => {
-        model().find({}, function (err, data) {
-            if (data) {
-                response(data);
-            } else {
-                reject(err);
-            }
-        });
+        model()
+            .aggregate(aggregate, (err, data) => {
+                if (data) {
+                    response(data);
+                } else {
+                    reject(err);
+                }
+            })
+            .skip(parseInt(params.skip))
+            .limit(parseInt(params.limit));
     });
 }
 

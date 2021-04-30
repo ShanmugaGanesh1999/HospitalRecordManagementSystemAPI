@@ -5,6 +5,10 @@ var verifyToken = require("../common/verifyToken");
 var appointmentModel = require("../model/appointmentModel");
 const dateformat = require("dateformat");
 
+function now() {
+    return Date.now();
+}
+
 /* GET Appointment listing. */
 router.get("/", function (req, res) {
     res.send("respond with a resource");
@@ -100,11 +104,20 @@ router.get(
             .getAllAppointments()
             .then((appointment) => {
                 if (appointment) {
+                    let elementList = [];
+                    appointment.forEach((element) => {
+                        element["patientAge"] =
+                            dateformat(now(), "yyyy") -
+                            element.patientDob.getFullYear();
+                        element["doctorExperience"] =
+                            dateformat(now(), "yyyy") -
+                            element.doctorDOP.getFullYear();
+                        elementList.push(element);
+                    });
                     res.status(200).json({
-                        message:
-                            "Fetched details of all appointments successfully",
-                        count: appointment.length,
-                        data: appointment,
+                        message: "Appointments found",
+                        count: elementList.length,
+                        data: elementList,
                     });
                 } else {
                     res.status(404).json({
@@ -307,6 +320,26 @@ router.get(
  *          type: string
  *          required: false
  *          in: header
+ *        - name: status
+ *          description: status
+ *          type: string
+ *          required: false
+ *          in: query
+ *        - name: search
+ *          description: search patient with name
+ *          type: string
+ *          required: false
+ *          in: query
+ *        - name: skip
+ *          description: skip
+ *          type: number
+ *          required: true
+ *          in: query
+ *        - name: limit
+ *          description: limit
+ *          type: number
+ *          required: false
+ *          in: query
  *     responses:
  *       200:
  *         description:  Get details of all the appointments
@@ -316,16 +349,28 @@ router.get(
     "/getAllAppointmentsToday",
     // verifyToken.verifyToken,
     function (req, res) {
+        var params = {
+            status: req.query.status,
+            search: req.query.search ? req.query.search : "",
+            skip: req.query.skip,
+            limit: req.query.limit ? req.query.limit : 5,
+        };
         appointmentModel
-            .getAllAppointments()
+            .getAllAppointments(params)
             .then((appointment) => {
                 if (appointment) {
                     let elementList = [];
                     appointment.forEach((element) => {
                         if (
                             dateformat(element.date, "shortDate") ===
-                            dateformat(Date.now(), "shortDate")
+                            dateformat(now(), "shortDate")
                         ) {
+                            element["patientAge"] =
+                                dateformat(now(), "yyyy") -
+                                element.patientDob.getFullYear();
+                            element["doctorExperience"] =
+                                dateformat(now(), "yyyy") -
+                                element.doctorDOP.getFullYear();
                             elementList.push(element);
                         }
                     });
