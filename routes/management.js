@@ -95,7 +95,6 @@ router.get(
             skip: req.query.skip,
             limit: req.query.limit ? req.query.limit : 5,
         };
-        let totCount;
         managementModel
             .getAllCounts({ no: 1 })
             .then((data) => {
