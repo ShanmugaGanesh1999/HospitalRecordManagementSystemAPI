@@ -17,7 +17,9 @@ function model() {
 }
 
 function createMedication(params) {
-    return model().create(params);
+    return new Promise((response, reject) => {
+        response(model().create(params));
+    });
 }
 
 function getAllMedications() {

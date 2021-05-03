@@ -358,4 +358,70 @@ router.get(
     },
 );
 
+/**
+ * @swagger
+ * /patients/getPatientsCountByPatientId:
+ *   get:
+ *     summary: Get details of a patient by patientId
+ *     tags:
+ *       - Patients
+ *     description: Get details of a patient by patientId
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - name: patientId
+ *         description: patientId
+ *         type: formData
+ *         in: query
+ *         required: true
+ *       - name: searchText
+ *         description: search text
+ *         type: string
+ *         required: true
+ *         in: query
+ *     responses:
+ *       200:
+ *         description:  Get details of an patient
+ */
+router.get("/getPatientsCountByPatientId", async function (req, res) {
+    try {
+        var patientId = req.query.patientId;
+        // console.log(patientId);
+        var patCount = patientId.split(",");
+        console.log(patCount.length);
+        var count = 0;
+        for (let i = 0; i < patCount.length; i++) {
+            var patient = await patientsModel
+                .model()
+                .find({ _id: patCount[i] });
+            console.log(patCount[1]);
+
+            if (
+                patient[i].name
+                    .toLowerCase()
+                    .includes(req.query.searchText.toLowerCase())
+            )
+                count += 1;
+            // patient.length = 0;
+        }
+        // console.log(count);
+        if (count > 0) {
+            // console.log(patient);
+            res.status(200).json({
+                message: "Patient name exists",
+                patCount: count,
+            });
+        } else {
+            res.status(200).json({
+                message: "Patient name doesnot exists",
+                patCount: count,
+            });
+        }
+    } catch (error) {
+        res.status(403).json({
+            message: error.message,
+        });
+    }
+});
+
 module.exports = router;

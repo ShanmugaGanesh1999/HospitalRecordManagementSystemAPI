@@ -54,16 +54,21 @@ router.post(
     function (req, res) {
         try {
             var details = req.body;
-            var data = medicationModel.createMedication(details);
-            if (data) {
-                res.status(200).json({
-                    message: "Medication created successfully",
+            // console.log(details);
+            medicationModel
+                .createMedication(details)
+                .then((data) => {
+                    // console.log(data);
+                    res.status(200).json({
+                        message: "Created medication details successfully",
+                        data: data,
+                    });
+                })
+                .catch((error) => {
+                    res.status(404).json({
+                        error: error,
+                    });
                 });
-            } else {
-                res.status(403).json({
-                    message: "Not created",
-                });
-            }
         } catch (error) {
             res.status(404).json({
                 message: error,

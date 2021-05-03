@@ -232,6 +232,7 @@ router.put(
     // verifyToken.verifyToken,
     function (req, res) {
         var params = req.body;
+        // console.log(params);
         appointmentModel.statusAppointmentById(params, function (err, data) {
             if (data) {
                 res.status(200).json({
@@ -514,16 +515,6 @@ router.get(
  *         type: string
  *         required: false
  *         in: query
- *       - name: skip
- *         description: skip
- *         type: number
- *         required: false
- *         in: query
- *       - name: limit
- *         description: limit
- *         type: number
- *         required: false
- *         in: query
  *       - name: searchText
  *         description: search text
  *         type: string
@@ -539,8 +530,8 @@ router.get(
     function (req, res) {
         // console.log(req.query.doctorId);
         var params = {
-            skip: req.query.skip ? req.query.skip : "0",
-            limit: req.query.limit ? req.query.limit : "0",
+            // skip: req.query.skip ? req.query.skip : "0",
+            // limit: req.query.limit ? req.query.limit : "0",
             doctorId: req.query.doctorId,
         };
         searchText = req.query.searchText ? req.query.searchText : "";
@@ -564,31 +555,32 @@ router.get(
                         docArr.push(res1[i]);
                     }
                 }
-                docArr1 = [];
-                if (params.limit > docArr.length) {
-                    limit = docArr.length;
-                } else {
-                    limit = params.limit;
-                }
-                for (let i = 0; i < limit; i++) {
-                    docArr1.push(docArr[i]);
-                }
-                var searchDataCount = docArr1.length;
+                // docArr1 = [];
+                // if (params.limit > docArr.length) {
+                //     limit = docArr.length;
+                // } else {
+                //     limit = params.limit;
+                // }
+                // for (let i = 0; i < limit; i++) {
+                //     docArr1.push(docArr[i]);
+                // }
+                var searchDataCount = docArr.length;
                 // console.log(docArr.length);
                 var length = await appointmentModel.model().find({});
                 totalLength = length.length;
                 // console.log(searchDataCount);
-                if (docArr1.length > 0) {
+                if (docArr.length > 0) {
                     res.status(200).json({
                         message: "Fetched all pending patient details",
-                        data: docArr1,
+                        data: docArr,
                         searchDataCount: searchDataCount,
                         totalLength: totalLength,
                     });
                 } else {
                     // console.log("1");
-                    res.status(404).json({
-                        message: "No pending details found",
+                    res.status(200).json({
+                        message: "No patient details found",
+                        searchDataCount: 0,
                     });
                 }
             } catch (error) {
@@ -597,6 +589,71 @@ router.get(
                 });
             }
         });
+    },
+);
+
+/**
+ * @swagger
+ * /appointment/getAppointmentIdByPatientId/:
+ *   get:
+ *     summary: Get appointment id
+ *     tags:
+ *       - Appointment
+ *     description: Get appointment id
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - name: x-access-token
+ *         description: send valid token
+ *         type: string
+ *         required: false
+ *         in: header
+ *       - name: patientId
+ *         description: Get appointment id
+ *         in: query
+ *         default: '608aef632b603f472c70d935'
+ *         schema:
+ *           $ref: '#/definitions/getAppointmentIdByPatientId'
+ *     responses:
+ *       200:
+ *         description: Successfully fetched appointment id
+ */
+/**
+ * @swagger
+ * definitions:
+ *   getAppointmentIdByPatientId:
+ *     properties:
+ *       id:
+ *         type: string
+ *       status:
+ *         type: string
+ */
+router.get(
+    "/getAppointmentIdByPatientId",
+    // verifyToken.verifyToken,
+    function (req, res) {
+        try {
+            var patientId = req.query.patientId;
+            appointmentModel.getAppointmentIdByPatientId(
+                patientId,
+                function (err, data) {
+                    if (data) {
+                        res.status(200).json({
+                            message: "Fetched appointment id successfully",
+                            appointmentId: data,
+                        });
+                    } else {
+                        res.status(404).json({
+                            message: err,
+                        });
+                    }
+                },
+            );
+        } catch (error) {
+            res.status(404).json({
+                message: error.message,
+            });
+        }
     },
 );
 

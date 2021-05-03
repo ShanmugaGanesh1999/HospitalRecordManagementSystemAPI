@@ -271,6 +271,7 @@ router.get(
                 res.status(200).json({
                     message: "Fetched doctor id successfully",
                     doctorId: doctorData[0]._id,
+                    doctorData: doctorData,
                 });
             } else {
                 res.status(404).json({

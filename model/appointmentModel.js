@@ -133,9 +133,9 @@ function getAppointmentById(id) {
     });
 }
 function statusAppointmentById(params, callback) {
-    let AppointmentId = mongoose.Types.ObjectId(params.id);
+    let appointmentId = mongoose.Types.ObjectId(params.id);
     return model().findByIdAndUpdate(
-        { _id: AppointmentId },
+        { _id: appointmentId },
         {
             $set: {
                 status: params.status,
@@ -252,13 +252,40 @@ function getAllPendingPatients(params, callback) {
             },
         },
     ];
-    model()
-        .aggregate(aggregate, (err, res2) => {
-            // console.log(res2);
-            callback(err, res2);
-        })
-        .skip(parseInt(params.skip))
-        .limit(parseInt(10));
+    model().aggregate(aggregate, (err, res2) => {
+        // console.log(res2);
+        callback(err, res2);
+    });
+}
+
+function getAppointmentIdByPatientId(patientId, callback) {
+    // console.log(params);
+    let patId = mongoose.Types.ObjectId(patientId);
+    var aggregate = [
+        {
+            $lookup: {
+                from: "patients",
+                localField: "patientId",
+                foreignField: "_id",
+                as: "pat",
+            },
+        },
+        {
+            $unwind: {
+                path: "$pat",
+            },
+        },
+        {
+            $match: { "pat._id": patId },
+        },
+        {
+            $project: { _id: 1 },
+        },
+    ];
+    model().aggregate(aggregate, (err, res2) => {
+        // console.log(res2);
+        callback(err, res2);
+    });
 }
 
 module.exports = {
@@ -269,4 +296,5 @@ module.exports = {
     statusAppointmentById,
     getAppointmentDetailsByPatientId,
     getAllPendingPatients,
+    getAppointmentIdByPatientId,
 };
