@@ -148,11 +148,11 @@ router.get("/getAllPatients", function (req, res) {
 router.get("/getPatientsByPatientId", async function (req, res) {
     try {
         var patientId = req.query.patientId;
-        //console.log(patientId);
+        // console.log(patientId);
         var patient = await patientsModel
             .model()
             .find({ patientId: patientId });
-        //console.log(patient);
+        // console.log(patient);
         if (patient != "") {
             // console.log(patient);
             res.status(200).json({

@@ -205,6 +205,63 @@ function getAppointmentDetailsByPatientId(appointmentData, callback) {
     });
 }
 
+function getAllPendingPatients(params, callback) {
+    // console.log(params);
+    var aggregate = [
+        {
+            $lookup: {
+                from: "doctors",
+                localField: "doctorId",
+                foreignField: "_id",
+                as: "doc",
+            },
+        },
+        {
+            $unwind: {
+                path: "$doc",
+            },
+        },
+
+        {
+            $lookup: {
+                from: "patients",
+                localField: "patientId",
+                foreignField: "_id",
+                as: "pat",
+            },
+        },
+        {
+            $unwind: {
+                path: "$pat",
+            },
+        },
+        {
+            $match: {
+                status: "Pending",
+            },
+        },
+        {
+            $project: {
+                status: "$status",
+                name: "$pat.name",
+                emailId: "$pat.emailId",
+                mobileNo: "$pat.mobileNo",
+                gender: "$pat.gender",
+                dob: "$pat.dob",
+                patientId: "$pat.patientId",
+                doctorId: "$doc._id",
+            },
+        },
+    ];
+    model()
+        .aggregate(aggregate, (err, res2) => {
+            // console.log(res2);
+            callback(err, res2);
+        })
+        .skip(parseInt(params.skip))
+        .limit(parseInt(10));
+}
+
 module.exports = {
     model,
     createAppointment,
@@ -212,4 +269,5 @@ module.exports = {
     getAppointmentById,
     statusAppointmentById,
     getAppointmentDetailsByPatientId,
+    getAllPendingPatients,
 };

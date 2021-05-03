@@ -283,11 +283,13 @@ router.get(
             var doctorData = await appointmentModel
                 .model()
                 .find({ doctorId: doctorId });
-            // console.log(doctorData.length);
+            // console.log(doctorData);
             var patientIdArr = [];
             for (let i = 0; i < doctorData.length; i++) {
-                patientIdArr.push(doctorData[i].patientId);
+                if (doctorData[i].status == "Pending")
+                    patientIdArr.push(doctorData[i].patientId);
             }
+            // console.log(patientIdArr)
             if (doctorData.length > 0) {
                 res.status(200).json({
                     message: "Fetched patient id successfully",
@@ -488,6 +490,113 @@ router.get(
                     });
             })
             .catch((err) => {});
+    },
+);
+
+/**
+ * @swagger
+ * /appointment/getAllPendingPatients/:
+ *   get:
+ *     summary: Get patients by name
+ *     tags:
+ *       - Appointment
+ *     description: Get patients by name
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - name: x-access-token
+ *         description: send valid token
+ *         type: string
+ *         required: false
+ *         in: header
+ *       - name: doctorId
+ *         description: Doctor id
+ *         type: string
+ *         required: false
+ *         in: query
+ *       - name: skip
+ *         description: skip
+ *         type: number
+ *         required: false
+ *         in: query
+ *       - name: limit
+ *         description: limit
+ *         type: number
+ *         required: false
+ *         in: query
+ *       - name: searchText
+ *         description: search text
+ *         type: string
+ *         required: false
+ *         in: query
+ *     responses:
+ *       200:
+ *         description: Successfully fetched patients by name
+ */
+router.get(
+    "/getAllPendingPatients",
+    //verifyToken.verifyToken,
+    function (req, res) {
+        // console.log(req.query.doctorId);
+        var params = {
+            skip: req.query.skip ? req.query.skip : "0",
+            limit: req.query.limit ? req.query.limit : "0",
+            doctorId: req.query.doctorId,
+        };
+        searchText = req.query.searchText ? req.query.searchText : "";
+        params["searchText"] = searchText;
+        // console.log(params);
+        appointmentModel.getAllPendingPatients(params, async (err, res1) => {
+            try {
+                // console.log(res1.length);
+                // res.status(200).json({
+                //     message: "Fetched all the details",
+                //     data: res1,
+                // });
+                var docArr = [];
+                for (let i = 0; i < res1.length; i++) {
+                    if (
+                        res1[i].doctorId == req.query.doctorId &&
+                        res1[i].name
+                            .toLowerCase()
+                            .includes(searchText.toLowerCase())
+                    ) {
+                        docArr.push(res1[i]);
+                    }
+                }
+                docArr1 = [];
+                if (params.limit > docArr.length) {
+                    limit = docArr.length;
+                } else {
+                    limit = params.limit;
+                }
+                for (let i = 0; i < limit; i++) {
+                    docArr1.push(docArr[i]);
+                }
+                var searchDataCount = docArr1.length;
+                // console.log(docArr.length);
+                var length = await appointmentModel.model().find({});
+                totalLength = length.length;
+                // console.log(searchDataCount);
+                if (docArr1.length > 0) {
+                    res.status(200).json({
+                        message: "Fetched all pending patient details",
+                        data: docArr1,
+                        searchDataCount: searchDataCount,
+                        totalLength: totalLength,
+                    });
+                } else {
+                    // console.log("1");
+                    res.status(404).json({
+                        message: "No pending details found",
+                    });
+                }
+            } catch (error) {
+                res.status(404).json({
+                    error: error.message,
+                });
+            }
+        });
     },
 );
 
