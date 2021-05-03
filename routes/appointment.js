@@ -600,4 +600,50 @@ router.get(
     },
 );
 
+/**
+ * @swagger
+ * /appointment/getAppointmentsBySpecialization/:
+ *   get:
+ *     summary: Get details of all the appointments
+ *     tags:
+ *       - Appointment
+ *     description: Get details of all the appointments
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *        - name: x-access-token
+ *          description: send valid token
+ *          type: string
+ *          required: false
+ *          in: header
+ *        - name: data
+ *          description: data type
+ *          type: string
+ *          required: true
+ *          in: query
+ *     responses:
+ *       200:
+ *         description:  Get details of all the appointments
+ */
+
+router.get(
+    "/getAppointmentsBySpecialization",
+    // verifyToken.verifyToken,
+    function (req, res) {
+        appointmentModel
+            .getAppointmentsBySpecialization({ data: req.query.data })
+            .then((data) => {
+                res.status(200).json({
+                    message: "Successfully fetched",
+                    data: data,
+                });
+            })
+            .catch((err) => {
+                res.status(404).json({
+                    error: err.message,
+                });
+            });
+    },
+);
+
 module.exports = router;

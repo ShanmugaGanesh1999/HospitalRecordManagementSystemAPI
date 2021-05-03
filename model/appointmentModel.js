@@ -262,11 +262,77 @@ function getAllPendingPatients(params, callback) {
         .limit(parseInt(10));
 }
 
+function getAppointmentsBySpecialization(params) {
+    let aggregate,
+        lookup = {
+            $lookup: {
+                from: "doctors",
+                localField: "doctorId",
+                foreignField: "_id",
+                as: "doc",
+            },
+        },
+        unwind = {
+            $unwind: {
+                path: "$doc",
+            },
+        };
+    if (params.data == "single") {
+        aggregate = [
+            lookup,
+            unwind,
+            {
+                $group: {
+                    _id: "$doc.specialization",
+                    name: { $first: "$doc.specialization" },
+                    value: { $sum: 1 },
+                },
+            },
+        ];
+    } else if (params.data == "multi") {
+        aggregate = [
+            lookup,
+            unwind,
+            {
+                $group: {
+                    _id: {
+                        specialization: "$doc.specialization",
+                        date: "$date",
+                    },
+                    count: { $sum: 1 },
+                },
+            },
+            {
+                $group: {
+                    _id: "$_id.specialization",
+                    name: { $first: "$_id.specialization" },
+                    series: {
+                        $push: {
+                            name: { $month: "$_id.date" },
+                            value: "$count",
+                        },
+                    },
+                },
+            },
+        ];
+    }
+    return new Promise((resolve, reject) => {
+        model().aggregate(aggregate, (err, res) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(res);
+            }
+        });
+    });
+}
+
 module.exports = {
     model,
     createAppointment,
     getAllAppointments,
     getAppointmentById,
+    getAppointmentsBySpecialization,
     statusAppointmentById,
     getAppointmentDetailsByPatientId,
     getAllPendingPatients,
