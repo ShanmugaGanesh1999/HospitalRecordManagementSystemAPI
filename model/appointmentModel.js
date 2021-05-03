@@ -78,6 +78,7 @@ function getAllAppointments(params) {
         {
             $match: match,
         },
+        { $sort: { date: -1 } },
         {
             $project: {
                 _id: 0,
