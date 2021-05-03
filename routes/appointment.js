@@ -313,6 +313,69 @@ router.get(
 
 /**
  * @swagger
+ * /appointment/getPatientIdByDoctorId1/:
+ *   get:
+ *     summary: Get patient id by doctor id
+ *     tags:
+ *       - Appointment
+ *     description: Get patient id by doctor id
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - name: x-access-token
+ *         description: send valid token
+ *         type: string
+ *         required: false
+ *         in: header
+ *       - name: doctorId
+ *         description: Get patient id by doctor id
+ *         type: string
+ *         in: query
+ *         default: "6082b7b4f57e811f50e00ff4"
+ *         required: true
+ *     responses:
+ *       200:
+ *         description: Get patient id by doctor id
+ */
+router.get(
+    "/getPatientIdByDoctorId1",
+    // verifyToken.verifyToken,
+    async function (req, res) {
+        try {
+            var doctorId = req.query.doctorId;
+            // console.log(doctorId);
+            var doctorData = await appointmentModel
+                .model()
+                .find({ doctorId: doctorId });
+            // console.log(doctorData);
+            var patientIdArr = [];
+            for (let i = 0; i < doctorData.length; i++) {
+                if (doctorData[i].status == "Finished")
+                    patientIdArr.push(doctorData[i].patientId);
+            }
+            // console.log(patientIdArr)
+            if (doctorData.length > 0) {
+                res.status(200).json({
+                    message: "Fetched patient id successfully",
+                    patientId: patientIdArr,
+                    patientCount: patientIdArr.length,
+                });
+            } else {
+                res.status(200).json({
+                    message: "No patient assigned",
+                    patientCount: 0,
+                });
+            }
+        } catch (error) {
+            res.status(403).json({
+                message: error.message,
+            });
+        }
+    },
+);
+
+/**
+ * @swagger
  * /appointment/getAppointmentDetailsByPatientId/:
  *   get:
  *     summary: Get appointment details by patient id
@@ -538,6 +601,104 @@ router.get(
         params["searchText"] = searchText;
         // console.log(params);
         appointmentModel.getAllPendingPatients(params, async (err, res1) => {
+            try {
+                // console.log(res1.length);
+                // res.status(200).json({
+                //     message: "Fetched all the details",
+                //     data: res1,
+                // });
+                var docArr = [];
+                for (let i = 0; i < res1.length; i++) {
+                    if (
+                        res1[i].doctorId == req.query.doctorId &&
+                        res1[i].name
+                            .toLowerCase()
+                            .includes(searchText.toLowerCase())
+                    ) {
+                        docArr.push(res1[i]);
+                    }
+                }
+                // docArr1 = [];
+                // if (params.limit > docArr.length) {
+                //     limit = docArr.length;
+                // } else {
+                //     limit = params.limit;
+                // }
+                // for (let i = 0; i < limit; i++) {
+                //     docArr1.push(docArr[i]);
+                // }
+                var searchDataCount = docArr.length;
+                // console.log(docArr.length);
+                var length = await appointmentModel.model().find({});
+                totalLength = length.length;
+                // console.log(searchDataCount);
+                if (docArr.length > 0) {
+                    res.status(200).json({
+                        message: "Fetched all pending patient details",
+                        data: docArr,
+                        searchDataCount: searchDataCount,
+                        totalLength: totalLength,
+                    });
+                } else {
+                    // console.log("1");
+                    res.status(200).json({
+                        message: "No patient details found",
+                        searchDataCount: 0,
+                    });
+                }
+            } catch (error) {
+                res.status(404).json({
+                    error: error.message,
+                });
+            }
+        });
+    },
+);
+
+/**
+ * @swagger
+ * /appointment/getAllFinishedPatients1/:
+ *   get:
+ *     summary: Get patients by name
+ *     tags:
+ *       - Appointment
+ *     description: Get patients by name
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - name: x-access-token
+ *         description: send valid token
+ *         type: string
+ *         required: false
+ *         in: header
+ *       - name: doctorId
+ *         description: Doctor id
+ *         type: string
+ *         required: false
+ *         in: query
+ *       - name: searchText
+ *         description: search text
+ *         type: string
+ *         required: false
+ *         in: query
+ *     responses:
+ *       200:
+ *         description: Successfully fetched patients by name
+ */
+router.get(
+    "/getAllFinishedPatients",
+    //verifyToken.verifyToken,
+    function (req, res) {
+        // console.log(req.query.doctorId);
+        var params = {
+            // skip: req.query.skip ? req.query.skip : "0",
+            // limit: req.query.limit ? req.query.limit : "0",
+            doctorId: req.query.doctorId,
+        };
+        searchText = req.query.searchText ? req.query.searchText : "";
+        params["searchText"] = searchText;
+        // console.log(params);
+        appointmentModel.getAllFinishedPatients(params, async (err, res1) => {
             try {
                 // console.log(res1.length);
                 // res.status(200).json({

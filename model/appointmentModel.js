@@ -258,6 +258,60 @@ function getAllPendingPatients(params, callback) {
     });
 }
 
+function getAllFinishedPatients(params, callback) {
+    // console.log(params);
+    var aggregate = [
+        {
+            $lookup: {
+                from: "doctors",
+                localField: "doctorId",
+                foreignField: "_id",
+                as: "doc",
+            },
+        },
+        {
+            $unwind: {
+                path: "$doc",
+            },
+        },
+
+        {
+            $lookup: {
+                from: "patients",
+                localField: "patientId",
+                foreignField: "_id",
+                as: "pat",
+            },
+        },
+        {
+            $unwind: {
+                path: "$pat",
+            },
+        },
+        {
+            $match: {
+                status: "Finished",
+            },
+        },
+        {
+            $project: {
+                status: "$status",
+                name: "$pat.name",
+                emailId: "$pat.emailId",
+                mobileNo: "$pat.mobileNo",
+                gender: "$pat.gender",
+                dob: "$pat.dob",
+                patientId: "$pat.patientId",
+                doctorId: "$doc._id",
+            },
+        },
+    ];
+    model().aggregate(aggregate, (err, res2) => {
+        // console.log(res2);
+        callback(err, res2);
+    });
+}
+
 function getAppointmentIdByPatientId(patientId, callback) {
     // console.log(params);
     let patId = mongoose.Types.ObjectId(patientId);
@@ -297,4 +351,5 @@ module.exports = {
     getAppointmentDetailsByPatientId,
     getAllPendingPatients,
     getAppointmentIdByPatientId,
+    getAllFinishedPatients,
 };

@@ -278,4 +278,88 @@ router.post(
         }
     },
 );
+
+/**
+ * @swagger
+ * /common/sendPrescriptionByPatientId/:
+ *   post:
+ *     summary: Send presciption mail
+ *     tags:
+ *       - Common
+ *     description: Send presciption mail
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - name: x-access-token
+ *         description: send valid token
+ *         type: string
+ *         required: false
+ *         in: header
+ *       - name: patientId
+ *         description: Send presciption mail
+ *         in: query
+ *         default: {'id':'608aef632b603f472c70d935',name:'Harsheni','patientId':'1001','emailId':'harshenic@gmail.com'}
+ *         schema:
+ *           $ref: '#/definitions/sendPrescriptionByPatientId'
+ *     responses:
+ *       200:
+ *         description: Successfully send presciption mail
+ */
+/**
+ * @swagger
+ * definitions:
+ *   sendPrescriptionByPatientId:
+ *     properties:
+ *       patientId:
+ *         type: string
+ *       name:
+ *         type: string
+ *       emailId:
+ *         type: string
+ */
+router.post(
+    "/sendPrescriptionByPatientId",
+    // verifyToken.verifyToken,
+    function (req, res) {
+        var patientData = req.body;
+        // console.log(candidatesData);
+        var transporter = nodemailer.createTransport({
+            service: "gmail",
+            auth: {
+                user: "harshenic@gmail.com",
+                pass: "harsheni11K#",
+            },
+        });
+        var fillData =
+            "Dear " +
+            patientData.name +
+            "," +
+            "<br><br>Congratulations! You have been invited to attend an interview round of AugustaHiTech Campus Recruitment Program 2020-21.<br><br> Below are the details for your interview with us:<br><br>Date : " +
+            candidatesData.date +
+            "<br><br>Time :" +
+            candidatesData.time +
+            "<br><br>Duration: 1 hour<br><br>Interview google meet link: https://meet.google.com/" +
+            candidatesData.meetLink +
+            '<br><br><br>In case of any query, please free to reach us at <a href="mailto:harshenic@gmail.com">harshenic@gmail.com</a>' +
+            "<br><br><br>Best Regards,<br><br>AugustaHiTech Pvt Ltd" +
+            `<br><br><p  style="font-weight: 400;font-size: 16px;line-height: 1.25;font-family: Roboto,RobotoDraft,Helvetica,Arial,sans-serif;color:red;background-color:yellow;width:38%">This is an auto-generated mail, please do not reply!</p>`;
+        var mailOptions = {
+            from: "harshenic@gmail.com",
+            to: candidatesData.emailId,
+            subject:
+                "Recruitment System: Your interview with AugustaHiTech has been schedulded",
+            html: fillData,
+        };
+        transporter.sendMail(mailOptions, function (error, info) {
+            if (error) {
+                console.log(error.message);
+            } else {
+                // console.log("Email sent: " + info.response);
+                res.json({
+                    message: "Email sent successfully",
+                });
+            }
+        });
+    },
+);
 module.exports = router;
