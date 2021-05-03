@@ -328,6 +328,64 @@ router.post("/verifyOtp", async function (req, res) {
 
 /**
  * @swagger
+ * /common/resetPwd:
+ *   post:
+ *     summary: account logout
+ *     tags:
+ *       - Common
+ *     description: account logout
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - name: emailId
+ *         description: email
+ *         type: string
+ *         required: true
+ *         in: query
+ *       - name: pwd
+ *         description: password
+ *         type: string
+ *         required: true
+ *         in: query
+ *     responses:
+ *       200:
+ *         description: account reset pwd
+ */
+
+router.post("/resetPwd", async function (req, res) {
+    try {
+        let mail = req.query.emailId,
+            pwd = req.query.pwd;
+        let data = await doctorModel.model().findOne({ emailId: mail });
+        if (data !== null) {
+            doctorModel.resetPwd(mail, pwd, (err, res1) => {
+                if (err) {
+                    res.status(404).json({
+                        message: "reset password failed",
+                        data: err,
+                    });
+                } else {
+                    res.status(200).json({
+                        message: "reset pwd success!",
+                        data: res1,
+                    });
+                }
+            });
+        } else {
+            res.status(403).json({
+                message: `Your are not elegible to perform this operation`,
+            });
+        }
+    } catch (error) {
+        res.status(404).json({
+            message: "reset pwd failed",
+            data: error,
+        });
+    }
+});
+
+/**
+ * @swagger
  * /common/logout:
  *   post:
  *     summary: common logout
@@ -347,10 +405,9 @@ router.post("/verifyOtp", async function (req, res) {
  *         description: interviewer logout
  */
 
-router.post(
-    "/logout",
-    verifyToken.verifyToken,
-    async function (req, res, next) {
+router.post("/logout", verifyToken.verifyToken, async function (req, res) {
+    let data = await doctorModel.model().findOne({ emailId: req.email });
+    if (data !== null) {
         var accessToken = req.headers["x-access-token"];
         blacklistModel.saveAccessToken(accessToken, function (err, result) {
             if (result) {
@@ -365,8 +422,12 @@ router.post(
                 });
             }
         });
-    },
-);
+    } else {
+        res.status(403).json({
+            message: `Your are not elegible to perform this operation`,
+        });
+    }
+});
 
 /**
  * @swagger
