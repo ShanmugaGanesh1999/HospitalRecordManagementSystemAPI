@@ -195,7 +195,7 @@ router.post("/emailOtp", async function (req, res) {
                     <i style="color: rgb(248, 14, 139)">${otp6}</i></strong>
                     &nbsp; ...(temp)<br />
                 <p style="font-size: 1rem">
-                    Dear, please be relaxed everything is under control :)
+                    Dear User, Please be careful this OTP will be valid for only one time
                 </p>
             </span>
             <br /><br />
@@ -206,7 +206,7 @@ router.post("/emailOtp", async function (req, res) {
                     width: 100%;
                 "
             >
-                This is a <i>Auto Generated Mail</i> ,please
+                This is a <i>Auto Generated Mail</i>, please
                 <strong>Do not reply</strong> !
             </p>
             <hr />

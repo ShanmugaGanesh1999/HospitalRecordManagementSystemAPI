@@ -646,4 +646,48 @@ router.get(
     },
 );
 
+/**
+ * @swagger
+ * /appointment/deleteAppointmentById/:
+ *   delete:
+ *     summary: Delete appointment by Id
+ *     tags:
+ *       - Appointment
+ *     description: Delete appointment by Id
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - name: id
+ *         description: appointmentId
+ *         type: string
+ *         in: query
+ *         required: true
+ *     responses:
+ *       200:
+ *         description:  Delete appointment by Id
+ */
+router.delete("/deleteAppointmentById", async function (req, res) {
+    try {
+        var appointmentId = req.query.id;
+        appointmentModel.deleteAppointmentById(
+            appointmentId,
+            function (err, res1) {
+                if (res1 != null) {
+                    res.status(200).json({
+                        message: "Deleted appointment successfully",
+                        data: res1,
+                    });
+                } else {
+                    res.status(404).json({
+                        message: "Can't delete appointment",
+                    });
+                }
+            },
+        );
+    } catch (error) {
+        res.status(403).json({
+            message: error.message,
+        });
+    }
+});
 module.exports = router;
