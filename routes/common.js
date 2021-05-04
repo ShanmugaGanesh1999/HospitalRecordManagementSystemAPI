@@ -58,9 +58,13 @@ router.post("/commonLogin", async function (req, res) {
     let email = req.body.emailId;
     let password = req.body.password;
     let data, local;
+    var status = "Active";
     data = await doctorModel
         .model()
-        .findOne({ emailId: email, password: password });
+        .findOneAndUpdate(
+            { emailId: email, password: password },
+            { status: status },
+        );
     if (data && email === "admin@hospital.com") {
         local = "Management";
     } else if (data && email === "reception@hospital.com") {
@@ -406,7 +410,10 @@ router.post("/resetPwd", async function (req, res) {
  */
 
 router.post("/logout", verifyToken.verifyToken, async function (req, res) {
-    let data = await doctorModel.model().findOne({ emailId: req.email });
+    var status = "Away";
+    let data = await doctorModel
+        .model()
+        .findOneAndUpdate({ emailId: req.email }, { status: status });
     if (data !== null) {
         var accessToken = req.headers["x-access-token"];
         blacklistModel.saveAccessToken(accessToken, function (err, result) {
