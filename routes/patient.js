@@ -149,7 +149,53 @@ router.get("/getPatientsByPatientId", async function (req, res) {
     try {
         var patientId = req.query.patientId;
         // console.log(patientId);
-        var patient = await patientsModel.model().find({ _id: patientId });
+        var patient = await patientsModel
+            .model()
+            .find({ patientId: patientId });
+        // console.log(patient);
+        if (patient != "") {
+            // console.log(patient);
+            res.status(200).json({
+                message: "Fetched details of patient successfully",
+                data: patient,
+            });
+        } else {
+            res.status(404).json({
+                message: "No such patient",
+            });
+        }
+    } catch (error) {
+        res.status(403).json({
+            message: error.message,
+        });
+    }
+});
+
+/**
+ * @swagger
+ * /patients/getPatientsById:
+ *   get:
+ *     summary: Get details of a patient by Id
+ *     tags:
+ *       - Patients
+ *     description: Get details of a patient by Id
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - name: patientId
+ *         description: patientId
+ *         type: string
+ *         in: query
+ *         required: true
+ *     responses:
+ *       200:
+ *         description:  Get details of an patient
+ */
+router.get("/getPatientsById", async function (req, res) {
+    try {
+        var patientId = req.query.patientId;
+        // console.log(patientId);
+        var patient = await patientsModel.model().find({ _Id: patientId });
         // console.log(patient);
         if (patient != "") {
             // console.log(patient);
