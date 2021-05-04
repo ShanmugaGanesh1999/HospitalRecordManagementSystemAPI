@@ -769,7 +769,7 @@ router.post(
         var dd = String(today.getDate()).padStart(2, "0");
         var mm = String(today.getMonth() + 1).padStart(2, "0");
         var yyyy = today.getFullYear();
-        today = mm + "/" + dd + "/" + yyyy;
+        today = dd + "/" + mm + "/" + yyyy;
         var fillData = `<meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <div
