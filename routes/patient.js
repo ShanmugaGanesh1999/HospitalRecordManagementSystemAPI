@@ -195,7 +195,7 @@ router.get("/getPatientsById", async function (req, res) {
     try {
         var patientId = req.query.patientId;
         // console.log(patientId);
-        var patient = await patientsModel.model().find({ _Id: patientId });
+        var patient = await patientsModel.model().find({ _id: patientId });
         // console.log(patient);
         if (patient != "") {
             // console.log(patient);
