@@ -81,7 +81,6 @@ function getAllAppointments(params) {
         { $sort: { date: -1 } },
         {
             $project: {
-                _id: 0,
                 date: "$date",
                 patientId: "$pat.patientId",
                 patientName: "$pat.name",
@@ -408,6 +407,12 @@ function getAppointmentsBySpecialization(params) {
     });
 }
 
+function deleteAppointmentById(params, callback) {
+    model().findOneAndDelete({ _id: params }, function (err, patient) {
+        callback(err, patient);
+    });
+}
+
 module.exports = {
     model,
     createAppointment,
@@ -419,4 +424,5 @@ module.exports = {
     getAllPendingPatients,
     getAppointmentIdByPatientId,
     getAllFinishedPatients,
+    deleteAppointmentById,
 };
