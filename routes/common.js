@@ -765,6 +765,11 @@ router.post(
                 pass: "harsheni11K#",
             },
         });
+        var today = new Date();
+        var dd = String(today.getDate()).padStart(2, "0");
+        var mm = String(today.getMonth() + 1).padStart(2, "0");
+        var yyyy = today.getFullYear();
+        today = mm + "/" + dd + "/" + yyyy;
         var fillData = `<meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <div
@@ -813,7 +818,7 @@ router.post(
             <i class="fa fa-envelope" style="font-size:18px"> ${patientData.docEmailId}</i>
             <br><p>
             <i class="fa fa-phone" style="font-size:18px" aria-hidden="true"> ${patientData.mobileNo}</i></p>
-            </div>
+            Date: ${today}</div>
 				<br />
 				<div style=" margin-left:10%;"><p style="font-size:150%;color:red">Patient Details</p>
 				<span style="font: 1em sans-serif"
@@ -898,7 +903,7 @@ router.post(
         </div></div>`;
         var mailOptions = {
             from: "harshenic@gmail.com",
-            to: `${patientData.emailId},harshenic@gmail.com`,
+            to: `${patientData.emailId}`,
             subject: "Hospital Management: Prescription Record",
             html: fillData,
         };
@@ -906,7 +911,6 @@ router.post(
             if (error) {
                 console.log(error.message);
             } else {
-                // console.log("Email sent: " + info.response);
                 res.json({
                     message: "Sent prescription mail successfully",
                 });
