@@ -657,7 +657,7 @@ router.get(
 
 /**
  * @swagger
- * /appointment/getAllFinishedPatients1/:
+ * /appointment/getAllFinishedPatients/:
  *   get:
  *     summary: Get patients by name
  *     tags:
@@ -779,16 +779,6 @@ router.get(
  *       200:
  *         description: Successfully fetched appointment id
  */
-/**
- * @swagger
- * definitions:
- *   getAppointmentIdByPatientId:
- *     properties:
- *       id:
- *         type: string
- *       status:
- *         type: string
- */
 router.get(
     "/getAppointmentIdByPatientId",
     // verifyToken.verifyToken,
@@ -805,7 +795,7 @@ router.get(
                         });
                     } else {
                         res.status(404).json({
-                            message: err,
+                            message: "Invalid doctor id",
                         });
                     }
                 },

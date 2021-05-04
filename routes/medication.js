@@ -180,4 +180,58 @@ router.get(
     },
 );
 
+/**
+ * @swagger
+ * /medication/getMedicationByAppointmentId:
+ *   get:
+ *     summary: Get details of a medication by appointment id
+ *     tags:
+ *       - Medication
+ *     description: Get details of a medication by appointment id
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - name: x-access-token
+ *         description: send valid token
+ *         type: string
+ *         required: false
+ *         in: header
+ *       - name: appointmentId
+ *         description: Appointment id
+ *         type: string
+ *         in: query
+ *     responses:
+ *       200:
+ *         description:  Get details of an Appointment by Id
+ */
+
+router.get(
+    "/getMedicationByAppointmentId",
+    // verifyToken.verifyToken,
+    async function (req, res) {
+        var appointmentId = req.query.appointmentId;
+        // console.log(appointmentId);
+        try {
+            var medicationData = await medicationModel.model().findOne({
+                appointmentId: appointmentId,
+            });
+            // console.log(medicationData);
+            if (medicationData != null) {
+                res.status(200).json({
+                    message: " Successfully fetched medication details",
+                    medication: medicationData,
+                });
+            } else {
+                res.status(404).json({
+                    message: "Medication not created",
+                });
+            }
+        } catch (err) {
+            res.status(404).json({
+                message: err,
+            });
+        }
+    },
+);
+
 module.exports = router;

@@ -206,7 +206,7 @@ router.post("/emailOtp", async function (req, res) {
                     width: 100%;
                 "
             >
-                This is a <i>Auto Generated Mail</i> ,please
+                This is a <i>Auto Generated Mail</i>, please
                 <strong>Do not reply</strong> !
             </p>
             <hr />
@@ -264,7 +264,7 @@ router.post("/emailOtp", async function (req, res) {
                 });
             } else {
                 res.status(403).json({
-                    message: `Your are not elegible to perform this operation`,
+                    message: `Your are not eligible to perform this operation`,
                 });
             }
         } else {
@@ -373,7 +373,7 @@ router.post("/resetPwd", async function (req, res) {
             });
         } else {
             res.status(403).json({
-                message: `Your are not elegible to perform this operation`,
+                message: `Your are not eligible to perform this operation`,
             });
         }
     } catch (error) {
@@ -424,7 +424,7 @@ router.post("/logout", verifyToken.verifyToken, async function (req, res) {
         });
     } else {
         res.status(403).json({
-            message: `Your are not elegible to perform this operation`,
+            message: `Your are not eligible to perform this operation`,
         });
     }
 });
@@ -611,7 +611,7 @@ router.post(
                     width: 100%;
                 "
             >
-                This is a <i>Auto Generated Mail</i> ,please
+                This is a <i>Auto Generated Mail</i>, please
                 <strong>Do not reply</strong> !
             </p>
             <hr />
@@ -705,15 +705,15 @@ router.post(
  *         type: string
  *         required: false
  *         in: header
- *       - name: patientId
+ *       - name: body
  *         description: Send presciption mail
- *         in: query
- *         default: {'id':'608aef632b603f472c70d935',name:'Harsheni','patientId':'1001','emailId':'harshenic@gmail.com'}
+ *         in: body
+ *         default: '{"patientId":"1001","name":"Harsheni","emailId":"harshenic@gmail.com","doctorName":"Sankavi","specilization":"Cardiologist","mobileNo":"7871894773","complication":"Fever","prescription":"Paracetomol (morning,night - after food) * 2 days","docEmailId":"harshenic@gmail.com","gender":"Female","dob":"21/06/1999"}'
  *         schema:
  *           $ref: '#/definitions/sendPrescriptionByPatientId'
  *     responses:
  *       200:
- *         description: Successfully send presciption mail
+ *         description: Successfully sent presciption mail
  */
 /**
  * @swagger
@@ -721,18 +721,36 @@ router.post(
  *   sendPrescriptionByPatientId:
  *     properties:
  *       patientId:
- *         type: string
+ *         type: number
  *       name:
  *         type: string
  *       emailId:
  *         type: string
+ *       doctorName:
+ *         type: string
+ *       specialization:
+ *         type: string
+ *       mobileNo:
+ *         type: number
+ *       complication:
+ *         type: string
+ *       prescription:
+ *         type: string
+ *       docEmailId:
+ *         type: string
+ *       gender:
+ *         type: string
+ *       dob:
+ *         type: date
  */
 router.post(
     "/sendPrescriptionByPatientId",
     // verifyToken.verifyToken,
     function (req, res) {
         var patientData = req.body;
-        // console.log(candidatesData);
+        console.log(patientData);
+        var age =
+            new Date().getFullYear() - new Date(patientData.dob).getFullYear();
         var transporter = nodemailer.createTransport({
             service: "gmail",
             auth: {
@@ -740,24 +758,141 @@ router.post(
                 pass: "harsheni11K#",
             },
         });
-        var fillData =
-            "Dear " +
-            patientData.name +
-            "," +
-            "<br><br>Congratulations! You have been invited to attend an interview round of AugustaHiTech Campus Recruitment Program 2020-21.<br><br> Below are the details for your interview with us:<br><br>Date : " +
-            candidatesData.date +
-            "<br><br>Time :" +
-            candidatesData.time +
-            "<br><br>Duration: 1 hour<br><br>Interview google meet link: https://meet.google.com/" +
-            candidatesData.meetLink +
-            '<br><br><br>In case of any query, please free to reach us at <a href="mailto:harshenic@gmail.com">harshenic@gmail.com</a>' +
-            "<br><br><br>Best Regards,<br><br>AugustaHiTech Pvt Ltd" +
-            `<br><br><p  style="font-weight: 400;font-size: 16px;line-height: 1.25;font-family: Roboto,RobotoDraft,Helvetica,Arial,sans-serif;color:red;background-color:yellow;width:38%">This is an auto-generated mail, please do not reply!</p>`;
+        var fillData = `<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<div
+            style="
+                color: #1d1717;
+                text-align: justify;
+                font-size: larger;
+                font-weight: 750;
+                line-height: 1.5;
+                font-family: Roboto, RobotoDraft, Helvetica, Arial, sans-serif;
+                margin-top: 7%;
+                padding: 2%;
+            "
+        >
+            <header
+                style="
+                    padding: 1%;
+                    position: fixed;
+                    left: 0;
+                    top: 0;
+                    width: 100%;
+                    background-color: rgb(255, 217, 0);
+                    color: rgb(255, 0, 0);
+                    text-align: center;
+                    font-family: Verdana, Geneva, Tahoma, sans-serif;
+                    font-size: larger;
+                    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2),
+                        0 9px 26px 0 rgba(0, 0, 0, 0.19);
+                "
+            >
+                Hospital Prescription Mail Letter
+            </header><br>
+            <div style="
+              background: white;
+              color: black;
+              font-size:130%;
+              border: 1px solid blue;
+              border-left: 1px solid white;
+              border-right: 1px solid white;
+			  padding:0%;
+			  margin-left:10%;
+			  width:75%;
+            ">
+			<p>Dr. ${patientData.doctorName} (M.B.B.S) ${patientData.specialization}</p>
+           
+            <i class="fa fa-envelope" style="font-size:18px"> ${patientData.docEmailId}</i>
+            <br><p>
+            <i class="fa fa-phone" style="font-size:18px" aria-hidden="true"> ${patientData.mobileNo}</i></p>
+            </div>
+				<br />
+				<div style=" margin-left:10%;"><p style="font-size:150%;color:red">Patient Details</p>
+				<span style="font: 1em sans-serif"
+                    ><strong>Patient Id</strong>:
+                    <i style="color: rgb(70, 155, 155)">${patientData.patientId}</i>
+                    &nbsp; ...(Permanent)</span
+                ><br />
+                <span style="font: 1em sans-serif"
+                    ><strong>Name</strong>:
+                    <i style="color: rgb(70, 155, 155)">${patientData.name}</i>
+                   </span
+                ><br />
+                <span style="font: 1em sans-serif"
+                    ><strong>Gender</strong>:
+                    <i style="color:  rgb(70, 155, 155)"
+                        >${patientData.gender}</i
+                    >
+                    </span
+                ><br />
+                <span style="font: 1em sans-serif"
+                    ><strong>Age</strong>:
+                    <i style="color:  rgb(70, 155, 155)">${age}</i>
+                    </span
+                >
+            </div>
+			<p style="font-size:150%;margin-left:10%;color:red">Patient Medication Details</p>
+           
+			<span style="font: 1em sans-serif;margin-left:10%"
+                    ><strong>Complication</strong>:
+                    <i style="color: forestgreen">${patientData.complication}</i>
+                 </span
+                ></br><br>
+<span style="font: 1em sans-serif;margin-left:10%"
+                    ><strong>Prescription</strong>:
+                    <i style="color: forestgreen">${patientData.prescription}</i>
+                   </span
+                ></br><br>
+				
+         
+            <hr />
+			   <p 
+                style="
+                    color: rgb(255, 1, 1);margin-left:10%;
+                    background-color: rgb(247, 247, 8);
+                    width: 75%;
+                "
+            >
+                This is a <i>Auto Generated Mail</i>, please
+                <strong>Do not reply</strong> !
+            </p>
+            <br /><br />
+            <br /><br />
+            <br /><br />
+            <br /><br />
+            <footer
+                style="
+                    position: fixed;
+                    left: 0;
+                    bottom: 0;
+                    width: 100%;
+                    background-color: gray;
+                    color: rgb(7, 7, 7);
+                    text-align: left;
+                    font-size: large;
+                    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2),
+                        0 9px 26px 0 rgba(0, 0, 0, 0.19);
+                "
+            >
+                &nbsp;
+                <a
+                    style="text-decoration: none; margin-left: 40px"
+                    href="http://hospital.free/about"
+                    >Hospital</a
+                >&nbsp; &copy; 2021-2022
+                <i style="display: flex; float: right; margin-right: 40px"
+                    >Contact us through &nbsp;
+                    <a href="mailto:shanmuga.automail@gmailcom"
+                        >shanmuga.automail@gmailcom</a
+                    ></i
+                >
+            </footer>
+        </div></div>`;
         var mailOptions = {
             from: "harshenic@gmail.com",
-            to: candidatesData.emailId,
-            subject:
-                "Recruitment System: Your interview with AugustaHiTech has been schedulded",
+            to: `${patientData.emailId},harshenic@gmail.com`,
+            subject: "Hospital Management: Prescription Record",
             html: fillData,
         };
         transporter.sendMail(mailOptions, function (error, info) {
@@ -766,7 +901,7 @@ router.post(
             } else {
                 // console.log("Email sent: " + info.response);
                 res.json({
-                    message: "Email sent successfully",
+                    message: "Sent prescription mail successfully",
                 });
             }
         });
