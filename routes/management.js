@@ -219,8 +219,9 @@ router.put(
     function (req, res) {
         managementModel
             .getAllCounts({ no: 1 })
-            .then((data) => {
+            .then(async (data) => {
                 if (data.length != 0) {
+                    let counter = 0;
                     data.forEach((element) => {
                         if (
                             dateFormat(element.date, "fullDate") ===
@@ -245,8 +246,33 @@ router.put(
                                     }
                                 },
                             );
+                        } else {
+                            counter++;
                         }
                     });
+                    if (counter == data.length) {
+                        let countCreated = await managementModel.createCount(0);
+                        if (countCreated) {
+                            managementModel.updateCountByDate(
+                                {
+                                    id: countCreated._id,
+                                    state: req.query.state,
+                                },
+                                (err2, res2) => {
+                                    if (res2) {
+                                        res.status(200).json({
+                                            message: "Updated Count",
+                                            data: res2,
+                                        });
+                                    } else {
+                                        res.status(404).json({
+                                            message: err2,
+                                        });
+                                    }
+                                },
+                            );
+                        }
+                    }
                 } else {
                     res.status(404).json({
                         message: "No count found",
