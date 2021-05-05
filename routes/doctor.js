@@ -1,7 +1,5 @@
 var express = require("express");
-const { isValidObjectId } = require("mongoose");
 var router = express.Router();
-
 var utils = require("../common/utils");
 var verifyToken = require("../common/verifyToken");
 var blacklistModel = require("../model/blacklistModel");
@@ -23,6 +21,21 @@ var doctorModel = require("../model/doctorModel");
  *         type: string
  *         required: false
  *         in: header
+ *       - name: skip
+ *         description: skip
+ *         type: number
+ *         required: true
+ *         in: query
+ *       - name: limit
+ *         description: limit
+ *         type: number
+ *         required: false
+ *         in: query
+ *       - name: search
+ *         description: search text
+ *         type: string
+ *         required: false
+ *         in: query
  *     responses:
  *       200:
  *         description: Successfully fetched all doctor details
@@ -30,18 +43,29 @@ var doctorModel = require("../model/doctorModel");
 router.get(
     "/getAllDoctors",
     // verifyToken.verifyToken,
-    function (req, res) {
-        doctorModel.getAllDoctors((err, res1) => {
+    async function (req, res) {
+        let totalDoctor = await doctorModel.model().find({ __v: 0 }),
+            totalLength;
+        var params = {
+            skip: req.query.skip,
+            limit: req.query.limit ? req.query.limit : 5,
+            search: req.query.search ? req.query.search : "",
+        };
+
+        doctorModel.getAllDoctors(params, (err, res1) => {
             try {
+                if (params.search.length != 0) totalLength = res1.length;
+                else totalLength = totalDoctor.length;
                 if (res1.length > 0) {
                     res.status(200).json({
                         message: "Fetched all doctor details",
                         data: res1,
-                        count: res1.length,
+                        count: totalLength,
                     });
                 } else {
                     res.status(404).json({
                         message: "No doctor details available",
+                        error: err,
                     });
                 }
             } catch (error) {
@@ -198,33 +222,26 @@ router.put(
     // verifyToken.verifyToken,
     async function (req, res) {
         var doctorData = req.body;
-        if (isValidObjectId(req.body.id)) {
-            var doctorId = await doctorModel.model().find({ _id: req.body.id });
-            if (doctorId != "") {
-                doctorModel.updateDoctorStatusById(
-                    doctorData,
-                    function (err, data) {
-                        if (data) {
-                            res.status(200).json({
-                                message:
-                                    "Updated status of doctor id:" + data.id,
-                                data: data,
-                            });
-                        } else {
-                            res.status(404).json({
-                                message: err,
-                            });
-                        }
-                    },
-                );
-            } else {
-                res.status(403).json({
-                    message: "Doctor details not available",
-                });
-            }
+        var doctorId = await doctorModel.model().find({ _id: doctorData.id });
+        if (doctorId != null) {
+            doctorModel.updateDoctorStatusById(
+                doctorData,
+                function (err, data) {
+                    if (data) {
+                        res.status(200).json({
+                            message: "Updated status of doctor id:" + data._id,
+                            data: data,
+                        });
+                    } else {
+                        res.status(404).json({
+                            message: err,
+                        });
+                    }
+                },
+            );
         } else {
             res.status(403).json({
-                message: "Not a valid id",
+                message: "Doctor details not available",
             });
         }
     },

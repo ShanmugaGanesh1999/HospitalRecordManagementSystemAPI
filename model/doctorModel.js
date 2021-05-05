@@ -1,3 +1,4 @@
+const { query } = require("express");
 var mongoose = require("mongoose");
 
 Schema = mongoose.Schema;
@@ -26,19 +27,35 @@ function createDoctor(params) {
     });
 }
 
-function getAllDoctors(callback) {
-    model().find({}, (err, res1) => {
-        callback(err, res1);
-    });
+function getAllDoctors(params, callback) {
+    let query = { __v: 0 };
+    if (params.search !== "") {
+        query = {
+            $and: [
+                {
+                    doctorName: {
+                        $regex: new RegExp(params.search, "i"),
+                    },
+                },
+                { __v: 0 },
+            ],
+        };
+    }
+    model()
+        .find(query, (err, res) => {
+            callback(err, res);
+        })
+        .skip(parseInt(params.skip))
+        .limit(parseInt(params.limit));
 }
 
-function updateDoctorStatusById(id, state, callback) {
-    let doctorId = mongoose.Types.ObjectId(id);
+function updateDoctorStatusById(params, callback) {
+    let doctorId = mongoose.Types.ObjectId(params.id);
     return model().findByIdAndUpdate(
         { _id: doctorId },
         {
             $set: {
-                status: state,
+                status: params.status,
             },
         },
         { new: true },

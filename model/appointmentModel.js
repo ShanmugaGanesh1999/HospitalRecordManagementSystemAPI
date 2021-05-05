@@ -1,5 +1,4 @@
 var mongoose = require("mongoose");
-const { resolveContent } = require("nodemailer/lib/shared");
 
 Schema = mongoose.Schema;
 ObjectId = Schema.ObjectId;
