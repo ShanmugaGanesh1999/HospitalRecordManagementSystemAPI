@@ -251,26 +251,16 @@ router.put(
                         }
                     });
                     if (counter == data.length) {
-                        let countCreated = await managementModel.createCount(0);
+                        let countCreated = await managementModel.createCount(1);
                         if (countCreated) {
-                            managementModel.updateCountByDate(
-                                {
-                                    id: countCreated._id,
-                                    state: req.query.state,
-                                },
-                                (err2, res2) => {
-                                    if (res2) {
-                                        res.status(200).json({
-                                            message: "Updated Count",
-                                            data: res2,
-                                        });
-                                    } else {
-                                        res.status(404).json({
-                                            message: err2,
-                                        });
-                                    }
-                                },
-                            );
+                            res.status(200).json({
+                                message: "created Count and updated",
+                                data: countCreated,
+                            });
+                        } else {
+                            res.status(404).json({
+                                message: err,
+                            });
                         }
                     }
                 } else {
