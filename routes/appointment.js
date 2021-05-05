@@ -410,6 +410,7 @@ router.get(
                 .model()
                 .find({ patientId: patientId });
             appointmentData = appointmentData[0];
+            //console.log(appointmentData);
             if (appointmentData != "") {
                 appointmentModel.getAppointmentDetailsByPatientId(
                     appointmentData,

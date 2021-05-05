@@ -148,7 +148,7 @@ function statusAppointmentById(params, callback) {
 }
 
 function getAppointmentDetailsByPatientId(appointmentData, callback) {
-    //console.log(appointmentData._id);
+    // console.log(appointmentData._id);
     var aggregate = [
         {
             $lookup: {
@@ -407,7 +407,8 @@ function getAppointmentsBySpecialization(params) {
 }
 
 function deleteAppointmentById(params, callback) {
-    model().findOneAndDelete({ _id: params }, function (err, patient) {
+    id = mongoose.Types.ObjectId(params);
+    model().findOneAndDelete({ _id: id }, function (err, patient) {
         callback(err, patient);
     });
 }
