@@ -75,12 +75,27 @@ function getAllAppointments(params) {
             },
         },
         {
+            $lookup: {
+                from: "medications",
+                localField: "_id",
+                foreignField: "appointmentId",
+                as: "med",
+            },
+        },
+        {
+            $unwind: {
+                path: "$med",
+            },
+        },
+        {
             $match: match,
         },
         { $sort: { date: -1 } },
         {
             $project: {
                 date: "$date",
+                complication: "$med.complication",
+                prescription: "$med.prescription",
                 patientId: "$pat.patientId",
                 patientName: "$pat.name",
                 patientEmailId: "$pat.emailId",
