@@ -181,7 +181,7 @@ router.post("/emailOtp", async function (req, res) {
                             font-family: 'Segoe UI', Tahoma, Geneva, Verdana,
                                 sans-serif;
                         "
-                        href="http://hospital.free/login"
+                        href="http://hospitalmgt.me/login"
                         >Hospital</a
                     ></strong
                 >
@@ -235,7 +235,7 @@ router.post("/emailOtp", async function (req, res) {
                 &nbsp;
                 <a
                     style="text-decoration: none; margin-left: 40px"
-                    href="http://hospital.free/about"
+                    href="http://hospitalmgt.me/about"
                     >Hospital</a
                 >&nbsp; &copy; 2021-2022
                 <i style="display: flex; float: right; margin-right: 40px"
@@ -588,7 +588,7 @@ router.post(
                             font-family: 'Segoe UI', Tahoma, Geneva, Verdana,
                                 sans-serif;
                         "
-                        href="http://hospital.free/login"
+                        href="http://hospitalmgt.me/login"
                         >Hospital</a
                     ></strong
                 >
@@ -643,7 +643,7 @@ router.post(
                 &nbsp;
                 <a
                     style="text-decoration: none; margin-left: 40px"
-                    href="http://hospital.free/about"
+                    href="http://hospitalmgt.me/about"
                     >Hospital</a
                 >&nbsp; &copy; 2021-2022
                 <i style="display: flex; float: right; margin-right: 40px"
@@ -966,7 +966,7 @@ router.post(
                 &nbsp;
                 <a
                     style="text-decoration: none; margin-left: 40px"
-                    href="http://hospital.free/about"
+                    href="http://hospitalmgt.me/about"
                     >Hospital</a
                 >&nbsp; &copy; 2021-2022
                 <i style="display: flex; float: right; margin-right: 40px"
@@ -1054,7 +1054,7 @@ function reportContent(reportData) {
                             font-family: 'Segoe UI', Tahoma, Geneva, Verdana,
                                 sans-serif;
                         "
-                        href="http://hospital.free/login"
+                        href="http://hospitalmgt.me/login"
                         >Hospital</a
                     ></strong
                 >
@@ -1123,7 +1123,7 @@ function reportContent(reportData) {
                 &nbsp;
                 <a
                     style="text-decoration: none; margin-left: 40px"
-                    href="http://hospital.free/about"
+                    href="http://hospitalmgt.me/about"
                     >Hospital</a
                 >&nbsp; &copy; 2021-2022
                 <i style="display: flex; float: right; margin-right: 40px"
@@ -1193,7 +1193,7 @@ function reportContent(reportData) {
                             font-family: 'Segoe UI', Tahoma, Geneva, Verdana,
                                 sans-serif;
                         "
-                        href="http://hospital.free/login"
+                        href="http://hospitalmgt.me/login"
                         >Hospital</a
                     ></strong
                 >
@@ -1262,7 +1262,7 @@ function reportContent(reportData) {
                 &nbsp;
                 <a
                     style="text-decoration: none; margin-left: 40px"
-                    href="http://hospital.free/about"
+                    href="http://hospitalmgt.me/about"
                     >Hospital</a
                 >&nbsp; &copy; 2021-2022
                 <i style="display: flex; float: right; margin-right: 40px"
