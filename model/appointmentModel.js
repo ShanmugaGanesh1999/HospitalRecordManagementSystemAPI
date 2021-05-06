@@ -30,12 +30,29 @@ function createAppointment(params) {
 function getAllAppointments(params) {
     let query = {},
         match = {},
-        aggregate;
+        aggregate,
+        lookup = {},
+        unwind = {};
 
     if (params.status != "") {
         match = {
             status: params.status,
         };
+        if (params.status == "Finished") {
+            lookup = {
+                $lookup: {
+                    from: "medications",
+                    localField: "_id",
+                    foreignField: "appointmentId",
+                    as: "med",
+                },
+            };
+            unwind = {
+                $unwind: {
+                    path: "$med",
+                },
+            };
+        }
     }
     if (params.search !== "") {
         query = {
@@ -74,19 +91,8 @@ function getAllAppointments(params) {
                 path: "$pat",
             },
         },
-        {
-            $lookup: {
-                from: "medications",
-                localField: "_id",
-                foreignField: "appointmentId",
-                as: "med",
-            },
-        },
-        {
-            $unwind: {
-                path: "$med",
-            },
-        },
+        lookup,
+        unwind,
         {
             $match: match,
         },
