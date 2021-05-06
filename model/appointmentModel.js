@@ -31,41 +31,7 @@ function getAllAppointments(params) {
     let query = {},
         match = {},
         aggregate,
-        lookup = {},
-        unwind = {};
-
-    if (params.status != "") {
-        match = {
-            status: params.status,
-        };
-        if (params.status == "Finished") {
-            lookup = {
-                $lookup: {
-                    from: "medications",
-                    localField: "_id",
-                    foreignField: "appointmentId",
-                    as: "med",
-                },
-            };
-            unwind = {
-                $unwind: {
-                    path: "$med",
-                },
-            };
-        }
-    }
-    if (params.search !== "") {
-        query = {
-            name: {
-                $regex: new RegExp(params.search, "i"),
-            },
-        };
-        match = {
-            $and: [{ status: params.status }, { "pat.name": query.name }],
-        };
-    }
-    aggregate = [
-        {
+        lookup1 = {
             $lookup: {
                 from: "doctors",
                 localField: "doctorId",
@@ -73,12 +39,12 @@ function getAllAppointments(params) {
                 as: "doc",
             },
         },
-        {
+        unwind1 = {
             $unwind: {
                 path: "$doc",
             },
         },
-        {
+        lookup2 = {
             $lookup: {
                 from: "patients",
                 localField: "patientId",
@@ -86,18 +52,25 @@ function getAllAppointments(params) {
                 as: "pat",
             },
         },
-        {
+        unwind2 = {
             $unwind: {
                 path: "$pat",
             },
         },
-        lookup,
-        unwind,
-        {
-            $match: match,
+        lookup3 = {
+            $lookup: {
+                from: "medications",
+                localField: "_id",
+                foreignField: "appointmentId",
+                as: "med",
+            },
         },
-        { $sort: { date: -1 } },
-        {
+        unwind3 = {
+            $unwind: {
+                path: "$med",
+            },
+        },
+        project = {
             $project: {
                 date: "$date",
                 complication: "$med.complication",
@@ -112,8 +85,51 @@ function getAllAppointments(params) {
                 doctorSpecialization: "$doc.specialization",
                 doctorDOP: "$doc.DOP",
             },
-        },
-    ];
+        };
+
+    if (params.status != "") {
+        match = {
+            status: params.status,
+        };
+        if (params.status == "Finished") {
+            aggregate = [
+                lookup1,
+                unwind1,
+                lookup2,
+                unwind2,
+                lookup3,
+                unwind3,
+                {
+                    $match: match,
+                },
+                { $sort: { date: -1 } },
+                project,
+            ];
+        } else if (params.status == "Pending") {
+            aggregate = [
+                lookup1,
+                unwind1,
+                lookup2,
+                unwind2,
+                {
+                    $match: match,
+                },
+                { $sort: { date: -1 } },
+                project,
+            ];
+        }
+    }
+    if (params.search !== "") {
+        query = {
+            name: {
+                $regex: new RegExp(params.search, "i"),
+            },
+        };
+        match = {
+            $and: [{ status: params.status }, { "pat.name": query.name }],
+        };
+    }
+
     if (params.no == 0) {
         return new Promise((resolve, reject) => {
             model()
