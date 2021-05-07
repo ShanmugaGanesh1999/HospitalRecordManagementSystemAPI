@@ -109,7 +109,7 @@ router.get(
     async function (req, res) {
         try {
             var doctorId = req.query.id;
-            console.log(isValidObjectId(doctorId));
+            // console.log(isValidObjectId(doctorId));
             var doctorData = await doctorModel.model().find({ _id: doctorId });
             if (doctorData != "" && isValidObjectId(doctorId)) {
                 res.status(200).json({
@@ -302,5 +302,75 @@ router.get(
         }
     },
 );
+
+/**
+ * @swagger
+ * /doctor/updateDoctorStatusByEmailId/:
+ *   put:
+ *     summary: Update doctor status by email id
+ *     tags:
+ *       - Doctor
+ *     description: Update doctor status by email id
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - name: doctor
+ *         description: update doctor status by email id
+ *         in: body
+ *         default: '{"emailId":"harsheni@mailfence.com","status":"Active"}'
+ *         schema:
+ *           $ref: '#/definitions/updateDoctorStatus'
+ *     responses:
+ *       200:
+ *         description: Update patients details Successfully
+ */
+
+/**
+ * @swagger
+ * definitions:
+ *   updateDoctorStatus:
+ *     properties:
+ *       emailId:
+ *         type: string
+ *       status:
+ *         type: string
+ */
+
+router.put("/updateDoctorStatusByEmailId", async function (req, res) {
+    try {
+        doctorData = req.body;
+        console.log(req.body);
+        var docData = await doctorModel
+            .model()
+            .find({ emailId: req.body.emailId });
+        console.log(docData);
+        if (docData != "") {
+            doctorModel.updateDoctorStatusByEmailId(
+                req.body.emailId,
+                req.body.status,
+                (err, res1) => {
+                    if (err) {
+                        res.status(403).json({
+                            message: "Doctor not found",
+                        });
+                    } else {
+                        res.status(200).json({
+                            message: "Doctor status updated successfully",
+                            data: res1,
+                        });
+                    }
+                },
+            );
+        } else {
+            res.status(403).json({
+                message: "Doctor not found",
+            });
+        }
+    } catch (error) {
+        res.status(403).json({
+            message: error.message,
+        });
+    }
+});
 
 module.exports = router;

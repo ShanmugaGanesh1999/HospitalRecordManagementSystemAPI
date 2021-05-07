@@ -232,9 +232,9 @@ router.put(
     // verifyToken.verifyToken,
     function (req, res) {
         var params = req.body;
-        console.log(params);
+        // console.log(params);
         appointmentModel.statusAppointmentById(params, function (err, data) {
-            console.log(data);
+            // console.log(data);
             if (data) {
                 res.status(200).json({
                     message: "Updated status of Appointment id:" + params.id,

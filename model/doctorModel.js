@@ -96,10 +96,26 @@ function resetPwd(email, pwd, callback) {
     );
 }
 
+function updateDoctorStatusByEmailId(docEmailId, status, callback) {
+    model().findOneAndUpdate(
+        { emailId: docEmailId },
+        {
+            $set: {
+                status: status,
+            },
+        },
+        { new: true },
+        (err, res) => {
+            callback(err, res);
+        },
+    );
+}
+
 module.exports = {
     model,
     createDoctor,
     resetPwd,
     getAllDoctors,
     updateDoctorStatusById,
+    updateDoctorStatusByEmailId,
 };

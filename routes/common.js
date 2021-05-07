@@ -1000,14 +1000,14 @@ router.post(
             </footer>
         </div></div>`;
         var mailOptions = {
-            from: "shanmuga.automail@gmail.com",
+            from: "harshenic@gmail.com",
             to: `${patientData.emailId}`,
             subject: "Hospital Management: Prescription Record",
             html: fillData,
         };
         transporter.sendMail(mailOptions, function (error, info) {
             if (error) {
-                console.log(error.message);
+                // console.log(error.message);
             } else {
                 res.json({
                     message: "Sent prescription mail successfully",

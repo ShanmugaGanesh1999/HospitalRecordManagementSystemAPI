@@ -434,13 +434,13 @@ router.get("/getPatientsCountByPatientId", async function (req, res) {
         var patientId = req.query.patientId;
         // console.log(patientId);
         var patCount = patientId.split(",");
-        console.log(patCount.length);
+        // console.log(patCount.length);
         var count = 0;
         for (let i = 0; i < patCount.length; i++) {
             var patient = await patientsModel
                 .model()
                 .find({ _id: patCount[i] });
-            console.log(patCount[1]);
+            // console.log(patCount[1]);
 
             if (
                 patient[i].name
