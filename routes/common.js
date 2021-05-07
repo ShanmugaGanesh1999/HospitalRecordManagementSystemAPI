@@ -58,13 +58,9 @@ router.post("/commonLogin", async function (req, res) {
     let email = req.body.emailId;
     let password = req.body.password;
     let data, local;
-    var status = "Active";
     data = await doctorModel
         .model()
-        .findOneAndUpdate(
-            { emailId: email, password: password },
-            { status: status },
-        );
+        .findOne({ emailId: email, password: password, status: "Away" }, {});
     if (data && email === "admin@hospital.com") {
         local = "Management";
     } else if (data && email === "reception@hospital.com") {
@@ -73,6 +69,12 @@ router.post("/commonLogin", async function (req, res) {
         local = "Doctor";
     }
     if (data) {
+        data = await doctorModel
+            .model()
+            .findOneAndUpdate(
+                { emailId: email, password: password },
+                { status: "Active" },
+            );
         var token = utils.generateJwtToken({
             email: email,
             password: req.body.password,
@@ -84,7 +86,8 @@ router.post("/commonLogin", async function (req, res) {
         });
     } else {
         res.status(404).send({
-            message: `Unable to find login credentials`,
+            message: `Unable to find login credentials for emailId: ${email},
+            Contact Management for futher details!`,
         });
     }
 });
@@ -181,7 +184,7 @@ router.post("/emailOtp", async function (req, res) {
                             font-family: 'Segoe UI', Tahoma, Geneva, Verdana,
                                 sans-serif;
                         "
-                        href="http://hospital.free/login"
+                        href="http://hospitalmgt.me/login"
                         >Hospital</a
                     ></strong
                 >
@@ -235,7 +238,7 @@ router.post("/emailOtp", async function (req, res) {
                 &nbsp;
                 <a
                     style="text-decoration: none; margin-left: 40px"
-                    href="http://hospital.free/about"
+                    href="http://hospitalmgt.me/about"
                     >Hospital</a
                 >&nbsp; &copy; 2021-2022
                 <i style="display: flex; float: right; margin-right: 40px"
@@ -410,12 +413,17 @@ router.post("/resetPwd", async function (req, res) {
  */
 
 router.post("/logout", verifyToken.verifyToken, async function (req, res) {
-    var status = "Away";
+    var accessToken = req.headers["x-access-token"];
     let data = await doctorModel
-        .model()
-        .findOneAndUpdate({ emailId: req.email }, { status: status });
+            .model()
+            .findOneAndUpdate(
+                { emailId: req.email, status: "Active" },
+                { status: "Away" },
+            ),
+        data0 = await doctorModel
+            .model()
+            .findOne({ emailId: req.email, status: "Suspended" });
     if (data !== null) {
-        var accessToken = req.headers["x-access-token"];
         blacklistModel.saveAccessToken(accessToken, function (err, result) {
             if (result) {
                 res.status(200).send({
@@ -430,9 +438,24 @@ router.post("/logout", verifyToken.verifyToken, async function (req, res) {
             }
         });
     } else {
-        res.status(403).json({
-            message: `Your are not eligible to perform this operation`,
-        });
+        if (data0 !== null) {
+            blacklistModel.saveAccessToken(accessToken, function (err, result) {
+                if (result) {
+                    res.status(200).send({
+                        message: "Logged out successfully",
+                        data: result,
+                    });
+                } else {
+                    res.status(404).send({
+                        message: "Unable to logout",
+                        data: err,
+                    });
+                }
+            });
+        } else
+            res.status(403).json({
+                message: `Your are not eligible to perform this operation`,
+            });
     }
 });
 
@@ -588,7 +611,7 @@ router.post(
                             font-family: 'Segoe UI', Tahoma, Geneva, Verdana,
                                 sans-serif;
                         "
-                        href="http://hospital.free/login"
+                        href="http://hospitalmgt.me/login"
                         >Hospital</a
                     ></strong
                 >
@@ -643,7 +666,7 @@ router.post(
                 &nbsp;
                 <a
                     style="text-decoration: none; margin-left: 40px"
-                    href="http://hospital.free/about"
+                    href="http://hospitalmgt.me/about"
                     >Hospital</a
                 >&nbsp; &copy; 2021-2022
                 <i style="display: flex; float: right; margin-right: 40px"
@@ -693,6 +716,82 @@ router.post(
                 message: error.message,
             });
         }
+    },
+);
+
+/**
+ * @swagger
+ * /common/sendReport/:
+ *   post:
+ *     summary: Send presciption mail
+ *     tags:
+ *       - Common
+ *     description: Send presciption mail
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - name: x-access-token
+ *         description: send valid token
+ *         type: string
+ *         required: false
+ *         in: header
+ *       - name: body
+ *         description: Send presciption mail
+ *         in: body
+ *         default: '{"from":"Doctor","to":"shanmuga.automail@gmail.com","heading":"Report","description":"Patients status is not updating after medication submission"}'
+ *         schema:
+ *           $ref: '#/definitions/sendPrescriptionByPatientId'
+ *     responses:
+ *       200:
+ *         description: Successfully sent presciption mail
+ */
+/**
+ * @swagger
+ * definitions:
+ *   sendPrescriptionByPatientId:
+ *     properties:
+ *       from:
+ *         type: string
+ *       to:
+ *         type: string
+ *       heading:
+ *         type: string
+ *       description:
+ *         type: string
+ */
+router.post(
+    "/sendReport",
+    // verifyToken.verifyToken,
+    function (req, res) {
+        var reportData = req.body;
+        var transporter = nodemailer.createTransport({
+            service: "gmail",
+            auth: {
+                user: "shanmuga.automail@gmail.com",
+                pass: "cnCx-Zr2XbF3!m!",
+            },
+        });
+        reportData["devTeam"] =
+            "shanmuga.ganesh@mailfence.com, harshenic@gmail.com, sankavi.rs@mailfence.com";
+        var fillData = reportContent(reportData);
+        var mailOptions = {
+            from: "shanmuga.automail@gmail.com",
+            to: reportData.devTeam,
+            subject: "Hospital Management: Mail to the Developer",
+            html: fillData,
+        };
+        transporter.sendMail(mailOptions, (err1, res1) => {
+            if (err1) {
+                res.status(404).json({
+                    message: `Mail failed`,
+                });
+            } else if (res1) {
+                res.status(200).json({
+                    message: `Successfully mailed devTeam`,
+                    data: res1,
+                });
+            }
+        });
     },
 );
 
@@ -760,8 +859,8 @@ router.post(
         var transporter = nodemailer.createTransport({
             service: "gmail",
             auth: {
-                user: "harshenic@gmail.com",
-                pass: "harsheni11K#",
+                user: "shanmuga.automail@gmail.com",
+                pass: "cnCx-Zr2XbF3!m!",
             },
         });
         var today = new Date();
@@ -889,7 +988,7 @@ router.post(
                 &nbsp;
                 <a
                     style="text-decoration: none; margin-left: 40px"
-                    href="http://hospital.free/about"
+                    href="http://hospitalmgt.me/about"
                     >Hospital</a
                 >&nbsp; &copy; 2021-2022
                 <i style="display: flex; float: right; margin-right: 40px"
@@ -901,7 +1000,7 @@ router.post(
             </footer>
         </div></div>`;
         var mailOptions = {
-            from: "harshenic@gmail.com",
+            from: "shanmuga.automail@gmail.com",
             to: `${patientData.emailId}`,
             subject: "Hospital Management: Prescription Record",
             html: fillData,
@@ -917,4 +1016,288 @@ router.post(
         });
     },
 );
+
+function reportContent(reportData) {
+    let htmlText;
+    if (reportData.heading == "Report") {
+        htmlText = `
+        <div
+            style="
+                color: #1d1717;
+                text-align: justify;
+                font-size: larger;
+                font-weight: 750;
+                line-height: 1.5;
+                font-family: Roboto, RobotoDraft, Helvetica, Arial, sans-serif;
+                margin-top: 7%;
+                padding: 2%;
+            "
+        >
+            <header
+                style="
+                    padding: 1%;
+                    position: fixed;
+                    left: 0;
+                    top: 0;
+                    width: 100%;
+                    background-color: rgb(255, 217, 0);
+                    color: rgb(255, 0, 0);
+                    text-align: center;
+                    font-family: Verdana, Geneva, Tahoma, sans-serif;
+                    font-size: larger;
+                    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2),
+                        0 9px 26px 0 rgba(0, 0, 0, 0.19);
+                "
+            >
+                Report to Developer regarding issues faced by *${reportData.from}*
+            </header>
+            <h1>Dear Developer,</h1>
+            <br />
+            <h2>
+                <i
+                    >This is the *${reportData.heading}* from our Hospital Application.</i
+                >
+            </h2>
+            <br />
+            <div>
+                <span style="color: rgb(250, 68, 2)"
+                    >Please try to fix the issues with in next <strong>Couple of Days</strong
+                        >. Otherwise inform the <strong>Management</strong> regarding the issue.</span
+                >
+            </div>
+            <br />
+            <p>
+                <i>here is our Hospital Official site hosted: &nbsp;</i
+                ><strong
+                    ><a
+                        style="
+                            font-size: x-large;
+                            text-decoration: none;
+                            font-family: 'Segoe UI', Tahoma, Geneva, Verdana,
+                                sans-serif;
+                        "
+                        href="http://hospitalmgt.me/login"
+                        >Hospital</a
+                    ></strong
+                >
+            </p>
+            <br />
+            <span
+                ><strong
+                    >From:
+                    <i style="color: rgb(136, 38, 228)"
+                        >${reportData.from}</i></strong>
+                <br />
+                <strong
+                    >Hospital - from mail:
+                    <i style="color: rgb(136, 38, 228)"
+                        >${reportData.to}</i></strong>
+                <br />
+                <strong
+                    >To:
+                    <i style="color: rgb(136, 38, 228)"
+                        >${reportData.devTeam}</i></strong>
+                <br />
+                <strong
+                    >Heading:
+                    <i style="color: rgb(136, 38, 228)"
+                        >${reportData.heading}</i></strong>
+                <br />
+                <strong
+                    >From:
+                    <i style="color: rgb(248, 14, 139)"
+                        >${reportData.description}</i></strong>
+                <br />
+                <p style="font-size: 1rem">
+                    Dear Developer, Please try to sort the issue and report back to Project Lead for the same.
+                </p>
+            </span>
+            <br /><br />
+            <p
+                style="
+                    color: rgb(255, 1, 1);
+                    background-color: rgb(247, 247, 8);
+                    width: 100%;
+                "
+            >
+                This is the mail from <i>officail hospital mail</i>, please
+                <strong>Do respond and resolve</strong> the issue for the same!
+            </p>
+            <hr />
+            <br /><br />
+            <br /><br />
+            <br /><br />
+            <br /><br />
+            <footer
+                style="
+                    position: fixed;
+                    left: 0;
+                    bottom: 0;
+                    width: 100%;
+                    background-color: gray;
+                    color: rgb(7, 7, 7);
+                    text-align: left;
+                    font-size: large;
+                    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2),
+                        0 9px 26px 0 rgba(0, 0, 0, 0.19);
+                "
+            >
+                &nbsp;
+                <a
+                    style="text-decoration: none; margin-left: 40px"
+                    href="http://hospitalmgt.me/about"
+                    >Hospital</a
+                >&nbsp; &copy; 2021-2022
+                <i style="display: flex; float: right; margin-right: 40px"
+                    >Contact us through &nbsp;
+                    <a href="mailto:shanmuga.automail@gmailcom"
+                        >shanmuga.automail@gmailcom</a
+                    ></i
+                >
+            </footer>
+        </div>
+        `;
+    } else if (reportData.heading == "Feedback") {
+        htmlText = `
+        <div
+            style="
+                color: #1d1717;
+                text-align: justify;
+                font-size: larger;
+                font-weight: 750;
+                line-height: 1.5;
+                font-family: Roboto, RobotoDraft, Helvetica, Arial, sans-serif;
+                margin-top: 7%;
+                padding: 2%;
+            "
+        >
+            <header
+                style="
+                    padding: 1%;
+                    position: fixed;
+                    left: 0;
+                    top: 0;
+                    width: 100%;
+                    background-color: rgb(255, 217, 0);
+                    color: rgb(255, 0, 0);
+                    text-align: center;
+                    font-family: Verdana, Geneva, Tahoma, sans-serif;
+                    font-size: larger;
+                    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2),
+                        0 9px 26px 0 rgba(0, 0, 0, 0.19);
+                "
+            >
+                Report to Developer regarding feedback from *${reportData.from}*
+            </header>
+            <h1>Dear Developer,</h1>
+            <br />
+            <h2>
+                <i
+                    >This is the *${reportData.heading}* from our Hospital Application.</i
+                >
+            </h2>
+            <br />
+            <div>
+                <span style="color: rgb(250, 68, 2)"
+                    >Please try to improve within next <strong>Couple of Days
+                        </strong
+                        >. Otherwise inform the <strong>Management</strong> regarding the feedback.</span
+                >
+            </div>
+            <br />
+            <p>
+                <i>here is our Hospital Official site hosted: &nbsp;</i
+                ><strong
+                    ><a
+                        style="
+                            font-size: x-large;
+                            text-decoration: none;
+                            font-family: 'Segoe UI', Tahoma, Geneva, Verdana,
+                                sans-serif;
+                        "
+                        href="http://hospitalmgt.me/login"
+                        >Hospital</a
+                    ></strong
+                >
+            </p>
+            <br />
+            <span
+                ><strong
+                    >From:
+                    <i style="color: rgb(136, 38, 228)"
+                        >${reportData.from}</i></strong>
+                <br />
+                <strong
+                    >Hospital - from mail:
+                    <i style="color: rgb(136, 38, 228)"
+                        >${reportData.to}</i></strong>
+                <br />
+                <strong
+                    >To:
+                    <i style="color: rgb(136, 38, 228)"
+                        >${reportData.devTeam}</i></strong>
+                <br />
+                <strong
+                    >Heading:
+                    <i style="color: rgb(136, 38, 228)"
+                        >${reportData.heading}</i></strong>
+                <br />
+                <strong
+                    >From:
+                    <i style="color: rgb(248, 14, 139)"
+                        >${reportData.description}</i></strong>
+                <br />
+                <p style="font-size: 1rem">
+                    Dear Developer, Please try to inclucate the feedback and give your best.
+                </p>
+            </span>
+            <br /><br />
+            <p
+                style="
+                    color: rgb(255, 1, 1);
+                    background-color: rgb(247, 247, 8);
+                    width: 100%;
+                "
+            >
+                This is the mail from <i>officail hospital mail</i>, please
+                <strong>Do respond</strong> for their valuable feedback and thank them!
+            </p>
+            <hr />
+            <br /><br />
+            <br /><br />
+            <br /><br />
+            <br /><br />
+            <footer
+                style="
+                    position: fixed;
+                    left: 0;
+                    bottom: 0;
+                    width: 100%;
+                    background-color: gray;
+                    color: rgb(7, 7, 7);
+                    text-align: left;
+                    font-size: large;
+                    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2),
+                        0 9px 26px 0 rgba(0, 0, 0, 0.19);
+                "
+            >
+                &nbsp;
+                <a
+                    style="text-decoration: none; margin-left: 40px"
+                    href="http://hospitalmgt.me/about"
+                    >Hospital</a
+                >&nbsp; &copy; 2021-2022
+                <i style="display: flex; float: right; margin-right: 40px"
+                    >Contact us through &nbsp;
+                    <a href="mailto:shanmuga.automail@gmailcom"
+                        >shanmuga.automail@gmailcom</a
+                    ></i
+                >
+            </footer>
+        </div>
+        `;
+    }
+    return htmlText;
+}
+
 module.exports = router;
