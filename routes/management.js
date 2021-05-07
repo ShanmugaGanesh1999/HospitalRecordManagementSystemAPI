@@ -264,9 +264,22 @@ router.put(
                         }
                     }
                 } else {
-                    res.status(404).json({
-                        message: "No count found",
-                    });
+                    if (data.length == 0) {
+                        let countCreated = await managementModel.createCount(1);
+                        if (countCreated) {
+                            res.status(200).json({
+                                message: "created Count and updated",
+                                data: countCreated,
+                            });
+                        } else {
+                            res.status(404).json({
+                                message: err,
+                            });
+                        }
+                    } else
+                        res.status(404).json({
+                            message: "No count found",
+                        });
                 }
             })
             .catch((err) => {
