@@ -60,12 +60,12 @@ router.post("/commonLogin", async function (req, res) {
     let data, local;
     data = await doctorModel
         .model()
-        .findOne({ emailId: email, password: password, status: "Away" }, {});
+        .findOne({ emailId: email, password: password }, {});
     if (data && email === "admin@hospital.com") {
         local = "Management";
     } else if (data && email === "reception@hospital.com") {
         local = "Reception";
-    } else if (data) {
+    } else if (data && data.status !== "Suspended") {
         local = "Doctor";
     }
     if (data) {
