@@ -232,8 +232,9 @@ router.put(
     // verifyToken.verifyToken,
     function (req, res) {
         var params = req.body;
-        // console.log(params);
+        console.log(params);
         appointmentModel.statusAppointmentById(params, function (err, data) {
+            console.log(data);
             if (data) {
                 res.status(200).json({
                     message: "Updated status of Appointment id:" + params.id,
@@ -353,8 +354,8 @@ router.get(
                 if (doctorData[i].status == "Finished")
                     patientIdArr.push(doctorData[i].patientId);
             }
-            // console.log(patientIdArr)
-            if (doctorData.length > 0) {
+            // console.log(patientIdArr.length);
+            if (doctorData.length != 0) {
                 res.status(200).json({
                     message: "Fetched patient id successfully",
                     patientId: patientIdArr,
