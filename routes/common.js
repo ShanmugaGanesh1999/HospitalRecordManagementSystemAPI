@@ -58,13 +58,9 @@ router.post("/commonLogin", async function (req, res) {
     let email = req.body.emailId;
     let password = req.body.password;
     let data, local;
-    var status = "Active";
     data = await doctorModel
         .model()
-        .findOneAndUpdate(
-            { emailId: email, password: password },
-            { status: status },
-        );
+        .findOne({ emailId: email, password: password, status: "Away" }, {});
     if (data && email === "admin@hospital.com") {
         local = "Management";
     } else if (data && email === "reception@hospital.com") {
@@ -73,6 +69,12 @@ router.post("/commonLogin", async function (req, res) {
         local = "Doctor";
     }
     if (data) {
+        data = await doctorModel
+            .model()
+            .findOneAndUpdate(
+                { emailId: email, password: password },
+                { status: "Active" },
+            );
         var token = utils.generateJwtToken({
             email: email,
             password: req.body.password,
@@ -84,7 +86,8 @@ router.post("/commonLogin", async function (req, res) {
         });
     } else {
         res.status(404).send({
-            message: `Unable to find login credentials`,
+            message: `Unable to find login credentials for emailId: ${email},
+            Contact Management for futher details!`,
         });
     }
 });
@@ -410,12 +413,17 @@ router.post("/resetPwd", async function (req, res) {
  */
 
 router.post("/logout", verifyToken.verifyToken, async function (req, res) {
-    var status = "Away";
+    var accessToken = req.headers["x-access-token"];
     let data = await doctorModel
-        .model()
-        .findOneAndUpdate({ emailId: req.email }, { status: status });
+            .model()
+            .findOneAndUpdate(
+                { emailId: req.email, status: "Active" },
+                { status: "Away" },
+            ),
+        data0 = await doctorModel
+            .model()
+            .findOne({ emailId: req.email, status: "Suspended" });
     if (data !== null) {
-        var accessToken = req.headers["x-access-token"];
         blacklistModel.saveAccessToken(accessToken, function (err, result) {
             if (result) {
                 res.status(200).send({
@@ -430,9 +438,24 @@ router.post("/logout", verifyToken.verifyToken, async function (req, res) {
             }
         });
     } else {
-        res.status(403).json({
-            message: `Your are not eligible to perform this operation`,
-        });
+        if (data0 !== null) {
+            blacklistModel.saveAccessToken(accessToken, function (err, result) {
+                if (result) {
+                    res.status(200).send({
+                        message: "Logged out successfully",
+                        data: result,
+                    });
+                } else {
+                    res.status(404).send({
+                        message: "Unable to logout",
+                        data: err,
+                    });
+                }
+            });
+        } else
+            res.status(403).json({
+                message: `Your are not eligible to perform this operation`,
+            });
     }
 });
 

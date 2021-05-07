@@ -2,8 +2,7 @@ var jwt = require("jsonwebtoken");
 var config = require("config");
 
 var generateJwtToken = (data) => {
-    // console.log(data);
-    var token = jwt.sign(data, config.project.jwtSecret, { expiresIn: "10d" });
+    var token = jwt.sign(data, config.project.jwtSecret, { expiresIn: "1d" });
     return token;
 };
 
