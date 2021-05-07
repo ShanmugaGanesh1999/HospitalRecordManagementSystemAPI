@@ -854,7 +854,6 @@ router.post(
     // verifyToken.verifyToken,
     function (req, res) {
         var patientData = req.body;
-        console.log(patientData);
         var age =
             new Date().getFullYear() - new Date(patientData.dob).getFullYear();
         var transporter = nodemailer.createTransport({
