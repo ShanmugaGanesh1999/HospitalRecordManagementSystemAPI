@@ -1,6 +1,6 @@
 var express = require("express");
 var router = express.Router();
-
+var verifyToken = require("../common/verifyToken");
 var utils = require("../common/utils");
 var patientsModel = require("../model/patientsModel");
 
@@ -18,7 +18,7 @@ var patientsModel = require("../model/patientsModel");
  *       - name: x-access-token
  *         description: send valid token
  *         type: string
- *         required: false
+ *         required: true
  *         in: header
  *       - name: patient
  *         description: To create patient
@@ -48,7 +48,8 @@ var patientsModel = require("../model/patientsModel");
  */
 
 router.post(
-    "/createPatient", // verifyToken.verifyToken,
+    "/createPatient",
+    verifyToken.verifyToken,
     async function (req, res, next) {
         try {
             emailId = req.body.emailId;
@@ -98,7 +99,7 @@ router.post(
  *       - name: x-access-token
  *         description: send valid token
  *         type: string
- *         required: false
+ *         required: true
  *         in: header
  *     responses:
  *       200:
@@ -342,7 +343,7 @@ router.delete("/deletePatientsById", async function (req, res) {
  *       - name: x-access-token
  *         description: send valid token
  *         type: string
- *         required: false
+ *         required: true
  *         in: header
  *       - name: skip
  *         description: skip
@@ -365,7 +366,7 @@ router.delete("/deletePatientsById", async function (req, res) {
  */
 router.get(
     "/getAllPatientsByName",
-    //verifyToken.verifyToken,
+    verifyToken.verifyToken,
     function (req, res) {
         var params = {
             skip: req.query.skip ? req.query.skip : "0",
@@ -429,45 +430,49 @@ router.get(
  *       200:
  *         description:  Get details of an patient
  */
-router.get("/getPatientsCountByPatientId", async function (req, res) {
-    try {
-        var patientId = req.query.patientId;
-        // console.log(patientId);
-        var patCount = patientId.split(",");
-        // console.log(patCount.length);
-        var count = 0;
-        for (let i = 0; i < patCount.length; i++) {
-            var patient = await patientsModel
-                .model()
-                .find({ _id: patCount[i] });
-            // console.log(patCount[1]);
+router.get(
+    "/getPatientsCountByPatientId",
+    verifyToken.verifyToken,
+    async function (req, res) {
+        try {
+            var patientId = req.query.patientId;
+            // console.log(patientId);
+            var patCount = patientId.split(",");
+            // console.log(patCount.length);
+            var count = 0;
+            for (let i = 0; i < patCount.length; i++) {
+                var patient = await patientsModel
+                    .model()
+                    .find({ _id: patCount[i] });
+                // console.log(patCount[1]);
 
-            if (
-                patient[i].name
-                    .toLowerCase()
-                    .includes(req.query.searchText.toLowerCase())
-            )
-                count += 1;
-            // patient.length = 0;
-        }
-        // console.log(count);
-        if (count > 0) {
-            // console.log(patient);
-            res.status(200).json({
-                message: "Patient name exists",
-                patCount: count,
+                if (
+                    patient[i].name
+                        .toLowerCase()
+                        .includes(req.query.searchText.toLowerCase())
+                )
+                    count += 1;
+                // patient.length = 0;
+            }
+            // console.log(count);
+            if (count > 0) {
+                // console.log(patient);
+                res.status(200).json({
+                    message: "Patient name exists",
+                    patCount: count,
+                });
+            } else {
+                res.status(200).json({
+                    message: "Patient name doesnot exists",
+                    patCount: count,
+                });
+            }
+        } catch (error) {
+            res.status(403).json({
+                message: error.message,
             });
-        } else {
-            res.status(200).json({
-                message: "Patient name doesnot exists",
-                patCount: count,
-            });
         }
-    } catch (error) {
-        res.status(403).json({
-            message: error.message,
-        });
-    }
-});
+    },
+);
 
 module.exports = router;

@@ -28,7 +28,7 @@ router.get("/", function (req, res) {
  *       - name: x-access-token
  *         description: send valid token
  *         type: string
- *         required: false
+ *         required: true
  *         in: header
  *       - name: appointmentData
  *         description: Enter the Appointment data
@@ -51,29 +51,25 @@ router.get("/", function (req, res) {
  *       doctorId:
  *         type: string
  */
-router.post(
-    "/createAppointment",
-    // verifyToken.verifyToken,
-    function (req, res) {
-        try {
-            var details = req.body;
-            var data = appointmentModel.createAppointment(details);
-            if (data) {
-                res.status(200).json({
-                    message: "Appointment created successfully",
-                });
-            } else {
-                res.status(403).json({
-                    message: "Not created",
-                });
-            }
-        } catch (error) {
-            res.status(404).json({
-                message: error,
+router.post("/createAppointment", verifyToken.verifyToken, function (req, res) {
+    try {
+        var details = req.body;
+        var data = appointmentModel.createAppointment(details);
+        if (data) {
+            res.status(200).json({
+                message: "Appointment created successfully",
+            });
+        } else {
+            res.status(403).json({
+                message: "Not created",
             });
         }
-    },
-);
+    } catch (error) {
+        res.status(404).json({
+            message: error,
+        });
+    }
+});
 
 /**
  * @swagger
@@ -89,53 +85,49 @@ router.post(
  *        - name: x-access-token
  *          description: send valid token
  *          type: string
- *          required: false
+ *          required: true
  *          in: header
  *     responses:
  *       200:
  *         description:  Get details of all the appointments
  */
 
-router.get(
-    "/getAllAppointments",
-    // verifyToken.verifyToken,
-    function (req, res) {
-        appointmentModel
-            .getAllAppointments({
-                no: 1,
-                status: "",
-                search: "",
-            })
-            .then((appointment) => {
-                if (appointment) {
-                    let elementList = [];
-                    appointment.forEach((element) => {
-                        element["patientAge"] =
-                            dateformat(now(), "yyyy") -
-                            element.patientDob.getFullYear();
-                        element["doctorExperience"] =
-                            dateformat(now(), "yyyy") -
-                            element.doctorDOP.getFullYear();
-                        elementList.push(element);
-                    });
-                    res.status(200).json({
-                        message: "Appointments found",
-                        count: elementList.length,
-                        data: elementList,
-                    });
-                } else {
-                    res.status(404).json({
-                        message: "No Appointment found",
-                    });
-                }
-            })
-            .catch((err) => {
-                res.status(404).json({
-                    message: err,
+router.get("/getAllAppointments", verifyToken.verifyToken, function (req, res) {
+    appointmentModel
+        .getAllAppointments({
+            no: 1,
+            status: "",
+            search: "",
+        })
+        .then((appointment) => {
+            if (appointment) {
+                let elementList = [];
+                appointment.forEach((element) => {
+                    element["patientAge"] =
+                        dateformat(now(), "yyyy") -
+                        element.patientDob.getFullYear();
+                    element["doctorExperience"] =
+                        dateformat(now(), "yyyy") -
+                        element.doctorDOP.getFullYear();
+                    elementList.push(element);
                 });
+                res.status(200).json({
+                    message: "Appointments found",
+                    count: elementList.length,
+                    data: elementList,
+                });
+            } else {
+                res.status(404).json({
+                    message: "No Appointment found",
+                });
+            }
+        })
+        .catch((err) => {
+            res.status(404).json({
+                message: err,
             });
-    },
-);
+        });
+});
 
 /**
  * @swagger
@@ -151,7 +143,7 @@ router.get(
  *       - name: x-access-token
  *         description: send valid token
  *         type: string
- *         required: false
+ *         required: true
  *         in: header
  *       - name: id
  *         description: id
@@ -162,34 +154,29 @@ router.get(
  *         description:  Get details of an Appointment by Id
  */
 
-router.get(
-    "/getAppointmentById",
-    // verifyToken.verifyToken,
-    function (req, res) {
-        var id = req.query.id;
-        appointmentModel
-            .getAppointmentById(id)
-            .then((data) => {
-                if (data) {
-                    res.status(200).json({
-                        message:
-                            " Successfully fetched details of Appointment id:" +
-                            id,
-                        data: data,
-                    });
-                } else {
-                    res.status(404).json({
-                        message: "Details not found",
-                    });
-                }
-            })
-            .catch((err) => {
-                res.status(404).json({
-                    message: err,
+router.get("/getAppointmentById", verifyToken.verifyToken, function (req, res) {
+    var id = req.query.id;
+    appointmentModel
+        .getAppointmentById(id)
+        .then((data) => {
+            if (data) {
+                res.status(200).json({
+                    message:
+                        " Successfully fetched details of Appointment id:" + id,
+                    data: data,
                 });
+            } else {
+                res.status(404).json({
+                    message: "Details not found",
+                });
+            }
+        })
+        .catch((err) => {
+            res.status(404).json({
+                message: err,
             });
-    },
-);
+        });
+});
 
 /**
  * @swagger
@@ -205,7 +192,7 @@ router.get(
  *       - name: x-access-token
  *         description: send valid token
  *         type: string
- *         required: false
+ *         required: true
  *         in: header
  *       - name: body
  *         description: Id to be updated
@@ -229,7 +216,7 @@ router.get(
  */
 router.put(
     "/statusAppointmentById",
-    // verifyToken.verifyToken,
+    verifyToken.verifyToken,
     function (req, res) {
         var params = req.body;
         // console.log("1", params);
@@ -263,7 +250,7 @@ router.put(
  *       - name: x-access-token
  *         description: send valid token
  *         type: string
- *         required: false
+ *         required: true
  *         in: header
  *       - name: doctorId
  *         description: Get patient id by doctor id
@@ -277,7 +264,7 @@ router.put(
  */
 router.get(
     "/getPatientIdByDoctorId",
-    // verifyToken.verifyToken,
+    verifyToken.verifyToken,
     async function (req, res) {
         try {
             var doctorId = req.query.doctorId;
@@ -330,7 +317,7 @@ router.get(
  *       - name: x-access-token
  *         description: send valid token
  *         type: string
- *         required: false
+ *         required: true
  *         in: header
  *       - name: doctorId
  *         description: Get patient id by doctor id
@@ -344,7 +331,7 @@ router.get(
  */
 router.get(
     "/getPatientIdByDoctorId1",
-    // verifyToken.verifyToken,
+    verifyToken.verifyToken,
     async function (req, res) {
         try {
             var doctorId = req.query.doctorId;
@@ -397,7 +384,7 @@ router.get(
  *       - name: x-access-token
  *         description: send valid token
  *         type: string
- *         required: false
+ *         required: true
  *         in: header
  *       - name: patientObjectId
  *         description: Get appointment details by patient id
@@ -411,7 +398,7 @@ router.get(
  */
 router.get(
     "/getAppointmentDetailsByPatientId",
-    // verifyToken.verifyToken,
+    verifyToken.verifyToken,
     async function (req, res) {
         try {
             var patientId = req.query.patientObjectId;
@@ -464,7 +451,7 @@ router.get(
  *        - name: x-access-token
  *          description: send valid token
  *          type: string
- *          required: false
+ *          required: true
  *          in: header
  *        - name: status
  *          description: status
@@ -493,7 +480,7 @@ router.get(
 
 router.get(
     "/getAllAppointmentsToday",
-    // verifyToken.verifyToken,
+    verifyToken.verifyToken,
     function (req, res) {
         var params = {
             no: 0,
@@ -563,7 +550,11 @@ router.get(
                         });
                     });
             })
-            .catch((err) => {});
+            .catch((err) => {
+                res.status(404).json({
+                    message: err,
+                });
+            });
     },
 );
 
@@ -581,12 +572,12 @@ router.get(
  *       - name: x-access-token
  *         description: send valid token
  *         type: string
- *         required: false
+ *         required: true
  *         in: header
  *       - name: doctorId
  *         description: Doctor id
  *         type: string
- *         required: false
+ *         required: true
  *         in: query
  *       - name: searchText
  *         description: search text
@@ -599,7 +590,7 @@ router.get(
  */
 router.get(
     "/getAllPendingPatients",
-    //verifyToken.verifyToken,
+    verifyToken.verifyToken,
     function (req, res) {
         // console.log(req.query.doctorId);
         var params = {
@@ -679,12 +670,12 @@ router.get(
  *       - name: x-access-token
  *         description: send valid token
  *         type: string
- *         required: false
+ *         required: true
  *         in: header
  *       - name: doctorId
  *         description: Doctor id
  *         type: string
- *         required: false
+ *         required: true
  *         in: query
  *       - name: searchText
  *         description: search text
@@ -697,7 +688,7 @@ router.get(
  */
 router.get(
     "/getAllFinishedPatients",
-    //verifyToken.verifyToken,
+    verifyToken.verifyToken,
     function (req, res) {
         // console.log(req.query.doctorId);
         var params = {
@@ -777,7 +768,7 @@ router.get(
  *       - name: x-access-token
  *         description: send valid token
  *         type: string
- *         required: false
+ *         required: true
  *         in: header
  *       - name: patientId
  *         description: Get appointment id
@@ -791,7 +782,7 @@ router.get(
  */
 router.get(
     "/getAppointmentIdByPatientId",
-    // verifyToken.verifyToken,
+    verifyToken.verifyToken,
     function (req, res) {
         try {
             var patientId = req.query.patientId;
@@ -832,7 +823,7 @@ router.get(
  *        - name: x-access-token
  *          description: send valid token
  *          type: string
- *          required: false
+ *          required: true
  *          in: header
  *        - name: data
  *          description: data type
@@ -846,7 +837,7 @@ router.get(
 
 router.get(
     "/getAppointmentsBySpecialization",
-    // verifyToken.verifyToken,
+    verifyToken.verifyToken,
     function (req, res) {
         appointmentModel
             .getAppointmentsBySpecialization({ data: req.query.data })
@@ -875,6 +866,11 @@ router.get(
  *     produces:
  *       - application/json
  *     parameters:
+ *       - name: x-access-token
+ *         description: send valid token
+ *         type: string
+ *         required: true
+ *         in: header
  *       - name: id
  *         description: appointmentId
  *         type: string
@@ -884,28 +880,32 @@ router.get(
  *       200:
  *         description:  Delete appointment by Id
  */
-router.delete("/deleteAppointmentById", async function (req, res) {
-    try {
-        var appointmentId = req.query.id;
-        appointmentModel.deleteAppointmentById(
-            appointmentId,
-            function (err, res1) {
-                if (res1 != null) {
-                    res.status(200).json({
-                        message: "Deleted appointment successfully",
-                        data: res1,
-                    });
-                } else {
-                    res.status(404).json({
-                        message: "Can't delete appointment",
-                    });
-                }
-            },
-        );
-    } catch (error) {
-        res.status(403).json({
-            message: error.message,
-        });
-    }
-});
+router.delete(
+    "/deleteAppointmentById",
+    verifyToken.verifyToken,
+    async function (req, res) {
+        try {
+            var appointmentId = req.query.id;
+            appointmentModel.deleteAppointmentById(
+                appointmentId,
+                function (err, res1) {
+                    if (res1 != null) {
+                        res.status(200).json({
+                            message: "Deleted appointment successfully",
+                            data: res1,
+                        });
+                    } else {
+                        res.status(404).json({
+                            message: "Can't delete appointment",
+                        });
+                    }
+                },
+            );
+        } catch (error) {
+            res.status(403).json({
+                message: error.message,
+            });
+        }
+    },
+);
 module.exports = router;

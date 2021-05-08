@@ -23,7 +23,7 @@ router.get("/", function (req, res) {
  *       - name: x-access-token
  *         description: send valid token
  *         type: string
- *         required: false
+ *         required: true
  *         in: header
  *       - name: medicationData
  *         description: Enter the Medication data
@@ -48,34 +48,30 @@ router.get("/", function (req, res) {
  *       prescription:
  *         type: string
  */
-router.post(
-    "/createMedication",
-    // verifyToken.verifyToken,
-    function (req, res) {
-        try {
-            var details = req.body;
-            // console.log(details);
-            medicationModel
-                .createMedication(details)
-                .then((data) => {
-                    // console.log(data);
-                    res.status(200).json({
-                        message: "Created medication details successfully",
-                        data: data,
-                    });
-                })
-                .catch((error) => {
-                    res.status(404).json({
-                        error: error,
-                    });
+router.post("/createMedication", verifyToken.verifyToken, function (req, res) {
+    try {
+        var details = req.body;
+        // console.log(details);
+        medicationModel
+            .createMedication(details)
+            .then((data) => {
+                // console.log(data);
+                res.status(200).json({
+                    message: "Created medication details successfully",
+                    data: data,
                 });
-        } catch (error) {
-            res.status(404).json({
-                message: error,
+            })
+            .catch((error) => {
+                res.status(404).json({
+                    error: error,
+                });
             });
-        }
-    },
-);
+    } catch (error) {
+        res.status(404).json({
+            message: error,
+        });
+    }
+});
 
 /**
  * @swagger
@@ -91,40 +87,35 @@ router.post(
  *        - name: x-access-token
  *          description: send valid token
  *          type: string
- *          required: false
+ *          required: true
  *          in: header
  *     responses:
  *       200:
  *         description:  Get details of all the medications
  */
 
-router.get(
-    "/getAllMedications",
-    // verifyToken.verifyToken,
-    function (req, res) {
-        medicationModel
-            .getAllMedications()
-            .then((medication) => {
-                if (medication) {
-                    res.status(200).json({
-                        message:
-                            "Successfully fetched details of all medication",
-                        count: medication.length,
-                        data: medication,
-                    });
-                } else {
-                    res.status(404).json({
-                        message: "No Medication found",
-                    });
-                }
-            })
-            .catch((err) => {
-                res.status(404).json({
-                    message: err,
+router.get("/getAllMedications", verifyToken.verifyToken, function (req, res) {
+    medicationModel
+        .getAllMedications()
+        .then((medication) => {
+            if (medication) {
+                res.status(200).json({
+                    message: "Successfully fetched details of all medication",
+                    count: medication.length,
+                    data: medication,
                 });
+            } else {
+                res.status(404).json({
+                    message: "No Medication found",
+                });
+            }
+        })
+        .catch((err) => {
+            res.status(404).json({
+                message: err,
             });
-    },
-);
+        });
+});
 
 /**
  * @swagger
@@ -140,7 +131,7 @@ router.get(
  *       - name: x-access-token
  *         description: send valid token
  *         type: string
- *         required: false
+ *         required: true
  *         in: header
  *       - name: id
  *         description: id
@@ -151,34 +142,30 @@ router.get(
  *         description:  Get details of an Medication by Id
  */
 
-router.get(
-    "/getMedicationById",
-    // verifyToken.verifyToken,
-    function (req, res) {
-        var id = req.query.id;
-        medicationModel
-            .getMedicationById(id)
-            .then((data) => {
-                if (data) {
-                    res.status(200).json({
-                        message:
-                            "Successfully fetched the details of Medication id:" +
-                            id,
-                        data: data,
-                    });
-                } else {
-                    res.status(404).json({
-                        message: "Details not found",
-                    });
-                }
-            })
-            .catch((err) => {
-                res.status(404).json({
-                    message: err,
+router.get("/getMedicationById", verifyToken.verifyToken, function (req, res) {
+    var id = req.query.id;
+    medicationModel
+        .getMedicationById(id)
+        .then((data) => {
+            if (data) {
+                res.status(200).json({
+                    message:
+                        "Successfully fetched the details of Medication id:" +
+                        id,
+                    data: data,
                 });
+            } else {
+                res.status(404).json({
+                    message: "Details not found",
+                });
+            }
+        })
+        .catch((err) => {
+            res.status(404).json({
+                message: err,
             });
-    },
-);
+        });
+});
 
 /**
  * @swagger
@@ -194,7 +181,7 @@ router.get(
  *       - name: x-access-token
  *         description: send valid token
  *         type: string
- *         required: false
+ *         required: true
  *         in: header
  *       - name: appointmentId
  *         description: Appointment id
@@ -207,7 +194,7 @@ router.get(
 
 router.get(
     "/getMedicationByAppointmentId",
-    // verifyToken.verifyToken,
+    verifyToken.verifyToken,
     async function (req, res) {
         var appointmentId = req.query.appointmentId;
         // console.log(appointmentId);

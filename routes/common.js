@@ -12,7 +12,7 @@ router.get("/", function (req, res) {
     res.send("respond with a resource");
 });
 
-let otpArr = [];
+let otpArr = {};
 
 function randomAlnum(len) {
     return randomstring.generate({
@@ -119,7 +119,7 @@ router.post("/emailOtp", async function (req, res) {
             let data = await doctorModel.model().findOne({ emailId: emailId });
             if (data !== null) {
                 var otp6 = randomAlnum(6);
-                otpArr.push(otp6);
+                otpArr[emailId] = otp6;
                 let transporter = nodemailer.createTransport({
                     service: "gmail",
                     auth: {
@@ -297,6 +297,10 @@ router.post("/emailOtp", async function (req, res) {
  *     produces:
  *       - application/json
  *     parameters:
+ *       - name: email
+ *         description: enter the login email
+ *         type: string
+ *         in: query
  *       - name: otp
  *         description: enter the login data
  *         type: string
@@ -307,10 +311,10 @@ router.post("/emailOtp", async function (req, res) {
  */
 router.post("/verifyOtp", async function (req, res) {
     try {
-        let otp = req.query.otp;
-        let popOTP = otpArr.pop();
-        if (otp != undefined && popOTP != undefined) {
-            if (otp == popOTP) {
+        let otp = req.query.otp,
+            email = req.query.email;
+        if (otp != undefined && otpArr[email] != undefined) {
+            if (otp == otpArr[email]) {
                 res.status(200).json({
                     message: `OTP matched :)`,
                     verification: 1,
@@ -455,7 +459,7 @@ router.post("/logout", verifyToken.verifyToken, async function (req, res) {
  *       - name: x-access-token
  *         description: send valid token
  *         type: string
- *         required: false
+ *         required: true
  *         in: header
  *       - name: doctor
  *         description: To create doctor details
@@ -487,7 +491,7 @@ router.post("/logout", verifyToken.verifyToken, async function (req, res) {
  */
 router.post(
     "/createDoctorAndPwdMail",
-    // verifyToken.verifyToken,
+    verifyToken.verifyToken,
     async function (req, res) {
         try {
             var doctorEmail = await doctorModel
@@ -715,7 +719,7 @@ router.post(
  *       - name: x-access-token
  *         description: send valid token
  *         type: string
- *         required: false
+ *         required: true
  *         in: header
  *       - name: body
  *         description: Send presciption mail
@@ -741,41 +745,37 @@ router.post(
  *       description:
  *         type: string
  */
-router.post(
-    "/sendReport",
-    // verifyToken.verifyToken,
-    function (req, res) {
-        var reportData = req.body;
-        var transporter = nodemailer.createTransport({
-            service: "gmail",
-            auth: {
-                user: "shanmuga.automail@gmail.com",
-                pass: "cnCx-Zr2XbF3!m!",
-            },
-        });
-        reportData["devTeam"] =
-            "shanmuga.ganesh@mailfence.com, harshenic@gmail.com, sankavi.rs@mailfence.com";
-        var fillData = reportContent(reportData);
-        var mailOptions = {
-            from: "shanmuga.automail@gmail.com",
-            to: reportData.devTeam,
-            subject: "Hospital Management: Mail to the Developer",
-            html: fillData,
-        };
-        transporter.sendMail(mailOptions, (err1, res1) => {
-            if (err1) {
-                res.status(404).json({
-                    message: `Mail failed`,
-                });
-            } else if (res1) {
-                res.status(200).json({
-                    message: `Successfully mailed devTeam`,
-                    data: res1,
-                });
-            }
-        });
-    },
-);
+router.post("/sendReport", verifyToken.verifyToken, function (req, res) {
+    var reportData = req.body;
+    var transporter = nodemailer.createTransport({
+        service: "gmail",
+        auth: {
+            user: "shanmuga.automail@gmail.com",
+            pass: "cnCx-Zr2XbF3!m!",
+        },
+    });
+    reportData["devTeam"] =
+        "shanmuga.ganesh@mailfence.com, harshenic@gmail.com, sankavi.rs@mailfence.com";
+    var fillData = reportContent(reportData);
+    var mailOptions = {
+        from: "shanmuga.automail@gmail.com",
+        to: reportData.devTeam,
+        subject: "Hospital Management: Mail to the Developer",
+        html: fillData,
+    };
+    transporter.sendMail(mailOptions, (err1, res1) => {
+        if (err1) {
+            res.status(404).json({
+                message: `Mail failed`,
+            });
+        } else if (res1) {
+            res.status(200).json({
+                message: `Successfully mailed devTeam`,
+                data: res1,
+            });
+        }
+    });
+});
 
 /**
  * @swagger
@@ -791,7 +791,7 @@ router.post(
  *       - name: x-access-token
  *         description: send valid token
  *         type: string
- *         required: false
+ *         required: true
  *         in: header
  *       - name: body
  *         description: Send presciption mail
@@ -833,7 +833,7 @@ router.post(
  */
 router.post(
     "/sendPrescriptionByPatientId",
-    // verifyToken.verifyToken,
+    verifyToken.verifyToken,
     function (req, res) {
         var patientData = req.body;
         var age =

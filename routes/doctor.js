@@ -19,7 +19,7 @@ var doctorModel = require("../model/doctorModel");
  *       - name: x-access-token
  *         description: send valid token
  *         type: string
- *         required: false
+ *         required: true
  *         in: header
  *       - name: skip
  *         description: skip
@@ -42,7 +42,7 @@ var doctorModel = require("../model/doctorModel");
  */
 router.get(
     "/getAllDoctors",
-    // verifyToken.verifyToken,
+    verifyToken.verifyToken,
     async function (req, res) {
         let totalDoctor = await doctorModel.model().find({ __v: 0 }),
             totalLength;
@@ -91,7 +91,7 @@ router.get(
  *       - name: x-access-token
  *         description: send valid token
  *         type: string
- *         required: false
+ *         required: true
  *         in: header
  *       - name: id
  *         description: Doctor id
@@ -105,7 +105,7 @@ router.get(
  */
 router.get(
     "/getDoctorById",
-    // verifyToken.verifyToken,
+    verifyToken.verifyToken,
     async function (req, res) {
         try {
             var doctorId = req.query.id;
@@ -143,7 +143,7 @@ router.get(
  *       - name: x-access-token
  *         description: send valid token
  *         type: string
- *         required: false
+ *         required: true
  *         in: header
  *       - name: status
  *         description: Doctor status
@@ -157,7 +157,7 @@ router.get(
  */
 router.get(
     "/getDoctorsByStatus",
-    // verifyToken.verifyToken,
+    verifyToken.verifyToken,
     async function (req, res) {
         try {
             var doctorStatus = req.query.status;
@@ -195,7 +195,7 @@ router.get(
  *       - name: x-access-token
  *         description: send valid token
  *         type: string
- *         required: false
+ *         required: true
  *         in: header
  *       - name: doctor
  *         description: Update doctor status by id
@@ -219,7 +219,7 @@ router.get(
  */
 router.put(
     "/updateDoctorStatusById",
-    // verifyToken.verifyToken,
+    verifyToken.verifyToken,
     async function (req, res) {
         var doctorData = req.body;
         var doctorId = await doctorModel.model().find({ _id: doctorData.id });
@@ -261,7 +261,7 @@ router.put(
  *       - name: x-access-token
  *         description: send valid token
  *         type: string
- *         required: false
+ *         required: true
  *         in: header
  *       - name: emailId
  *         description: Get doctor email id by id
@@ -275,7 +275,7 @@ router.put(
  */
 router.get(
     "/getDoctorIdByEmailId",
-    // verifyToken.verifyToken,
+    verifyToken.verifyToken,
     async function (req, res) {
         try {
             var doctorEmailId = req.query.emailId;

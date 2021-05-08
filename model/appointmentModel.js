@@ -28,8 +28,7 @@ function createAppointment(params) {
 }
 
 function getAllAppointments(params) {
-    let query = {},
-        match = {},
+    let match = {},
         aggregate,
         lookup1 = {
             $lookup: {
@@ -86,7 +85,6 @@ function getAllAppointments(params) {
                 doctorDOP: "$doc.DOP",
             },
         };
-
     if (params.status != "") {
         match = {
             status: params.status,
@@ -119,22 +117,24 @@ function getAllAppointments(params) {
             ];
         }
     }
-    if (params.search !== "") {
-        query = {
-            name: {
-                $regex: new RegExp(params.search, "i"),
-            },
-        };
+    if (params.search != "") {
         match = {
-            $and: [{ status: params.status }, { "pat.name": query.name }],
+            $and: [
+                { status: params.status },
+                {
+                    "pat.name": {
+                        $regex: new RegExp(params.search, "i"),
+                    },
+                },
+            ],
         };
     }
-
     if (params.no == 0) {
         return new Promise((resolve, reject) => {
             model()
                 .aggregate(aggregate, (err, data) => {
                     if (data) {
+                        // console.log("1", data);
                         resolve(data);
                     } else {
                         reject(err);
@@ -149,6 +149,7 @@ function getAllAppointments(params) {
                 if (err) {
                     reject(err);
                 } else {
+                    // console.log("2", res);
                     resolve(res);
                 }
             });
