@@ -1000,7 +1000,7 @@ router.post(
             </footer>
         </div></div>`;
         var mailOptions = {
-            from: "harshenic@gmail.com",
+            from: "shanmuga.automail@gmail.com",
             to: `${patientData.emailId}`,
             subject: "Hospital Management: Prescription Record",
             html: fillData,
