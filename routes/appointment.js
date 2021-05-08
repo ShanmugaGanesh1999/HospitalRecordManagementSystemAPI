@@ -232,9 +232,9 @@ router.put(
     // verifyToken.verifyToken,
     function (req, res) {
         var params = req.body;
-        // console.log(params);
+        // console.log("1", params);
         appointmentModel.statusAppointmentById(params, function (err, data) {
-            // console.log(data);
+            // console.log("2", data);
             if (data) {
                 res.status(200).json({
                     message: "Updated status of Appointment id:" + params.id,
@@ -288,7 +288,11 @@ router.get(
             // console.log(doctorData);
             var patientIdArr = [];
             for (let i = 0; i < doctorData.length; i++) {
-                if (doctorData[i].status == "Pending")
+                if (
+                    doctorData[i].status == "Pending" &&
+                    dateformat(doctorData[i].date, "shortDate") ===
+                        dateformat(now(), "shortDate")
+                )
                     patientIdArr.push(doctorData[i].patientId);
             }
             // console.log(patientIdArr)
@@ -351,7 +355,11 @@ router.get(
             // console.log(doctorData);
             var patientIdArr = [];
             for (let i = 0; i < doctorData.length; i++) {
-                if (doctorData[i].status == "Finished")
+                if (
+                    doctorData[i].status == "Finished" &&
+                    dateformat(doctorData[i].date, "shortDate") ===
+                        dateformat(now(), "shortDate")
+                )
                     patientIdArr.push(doctorData[i].patientId);
             }
             // console.log(patientIdArr.length);
