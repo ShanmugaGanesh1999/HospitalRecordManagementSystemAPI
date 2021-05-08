@@ -339,11 +339,11 @@ router.get(
 router.put("/updateDoctorStatusByEmailId", async function (req, res) {
     try {
         doctorData = req.body;
-        console.log(req.body);
+        // console.log(req.body);
         var docData = await doctorModel
             .model()
             .find({ emailId: req.body.emailId });
-        console.log(docData);
+        // console.log(docData);
         if (docData != "") {
             doctorModel.updateDoctorStatusByEmailId(
                 req.body.emailId,

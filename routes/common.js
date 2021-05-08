@@ -414,16 +414,13 @@ router.post("/resetPwd", async function (req, res) {
 
 router.post("/logout", verifyToken.verifyToken, async function (req, res) {
     var accessToken = req.headers["x-access-token"];
-    let data = await doctorModel
-            .model()
-            .findOneAndUpdate(
-                { emailId: req.email, status: "Active" },
-                { status: "Away" },
-            ),
-        data0 = await doctorModel
-            .model()
-            .findOne({ emailId: req.email, status: "Suspended" });
+    let data = await doctorModel.model().findOne({ emailId: req.email });
     if (data !== null) {
+        if (data.status !== "Suspended") {
+            data = await doctorModel
+                .model()
+                .findOneAndUpdate({ emailId: req.email }, { status: "Away" });
+        }
         blacklistModel.saveAccessToken(accessToken, function (err, result) {
             if (result) {
                 res.status(200).send({
@@ -438,24 +435,9 @@ router.post("/logout", verifyToken.verifyToken, async function (req, res) {
             }
         });
     } else {
-        if (data0 !== null) {
-            blacklistModel.saveAccessToken(accessToken, function (err, result) {
-                if (result) {
-                    res.status(200).send({
-                        message: "Logged out successfully",
-                        data: result,
-                    });
-                } else {
-                    res.status(404).send({
-                        message: "Unable to logout",
-                        data: err,
-                    });
-                }
-            });
-        } else
-            res.status(403).json({
-                message: `Your are not eligible to perform this operation`,
-            });
+        res.status(403).json({
+            message: `Your are not eligible to perform this operation`,
+        });
     }
 });
 
